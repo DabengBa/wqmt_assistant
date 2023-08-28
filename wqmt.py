@@ -95,25 +95,33 @@ def Bureau(): # 管理局领体力，派遣
     put_text("完成管理局领体力，派遣")
 
 def friends(): # 朋友
+    put_text("开始拜访朋友")
     center = comparebackxy('./Target/wqmt/friend1.png',0.95)
-    if center is not None:
+    if center:
         x,y = center
         adb_click(x, y, sleepn=2)
     for i in range(3):
-        ran = random.uniform(0.001, 0.005)
-        adb_click_percent(0.869+ran, 0.855-ran)
-        time.sleep(2)
+        adb_click_percent(0.869, 0.855, ran=1, sleepn=2)
     ## 退出
+    adb_screenshot()
     homequit()
+    put_text("完成朋友拜访")
 
 def construction(): # 基建
+    put_text("开始基建")
     adb_click_percent(0.844, 0.629, sleepn=3)
+    adb_screenshot()
     [adb_click_percent(0.096, 0.373,sleepn=1) for i in range(3)]
+    adb_screenshot()
+    # 开始聊天
+    [adb_click_percent(0.074, 0.249, sleepn=2) for i in range(3)]
+    adb_screenshot()
     ## 退出
-    homequit()
-    adb_click_percent(0.074, 0.249, sleepn=2) # 开始聊天
+    put_text("开始聊天")
     adb_click_percent(0.908, 0.612)
     [adb_click_percent(0.908, 0.889, ran=1) for i in range(50)]
+    put_text("完成基建")
+    adb_screenshot()
     ## 退出
     homequit()
 
@@ -157,23 +165,25 @@ def raidriver(): # 秀河
     homequit()
 
 def raid11(): # 刷11章
+    put_text("开始raid任务")
     center = comparebackxy('./Target/wqmt/fuben1.png',0.95) ## 回到副本界面
-    if center is not None:
+    if center:
         x,y = center
         adb_click(x, y, sleepn=2)
     center = comparebackxy('./Target/wqmt/fuben3-11.png',0.95) ## 打开11章
-    if center is not None:
+    if center:
         x,y = center
         adb_click(x, y, sleepn=2)
     for i in range(2):
         adb_swap_percent(0.965, 0.578, 0.27, 0.611, sleepn=1)
     adb_click_percent(0.078, 0.541, sleepn=2) # 打开11-6
     center = comparebackxy('./Target/wqmt/fubensaodang.png',0.95)
-    if center is not None:
+    if center:
         x,y = center
         adb_click(x, y, sleepn=2)
+        [adb_click_percent(0.712, 0.683, ran=1,) for i in range(5)] # 点击+号
         center = comparebackxy('./Target/wqmt/fubensaodangkaishi.png',0.95)
-        if center is not None:
+        if center:
             x,y = center
             adb_click(x, y, sleepn=10)
             homequit()
@@ -210,6 +220,7 @@ def morning():
     raidriver()
     raid11()
     raiddark()
+    put_text("完成任务")
 
 def night():
     starttohome()
@@ -217,3 +228,4 @@ def night():
     friends()
     construction()
     raid11()
+    put_text("完成任务")

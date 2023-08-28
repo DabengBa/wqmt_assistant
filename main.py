@@ -7,7 +7,7 @@ from wqmt import *
 with open('config.yaml', 'r', encoding='utf-8') as f:
   config = yaml.safe_load(f)
 
-def options():
+def select_jobs():
     options = ['启动', '签到', '公会','邮件','采购中心-每日免费体力','基建收菜','管理局','好友','副本-锈河记忆','副本-11-6','副本-深井']
     default_value = config['default_options']
     selected_options = checkbox("Selection", options=options, value=default_value)
@@ -29,7 +29,7 @@ if __name__ == '__main__':
     if "晚一次" in selected_options:
         night()
     if "自选" in selected_options:
-        agree = options()
+        agree = select_jobs()
         if "启动" in agree:
             starttohome()
         if "签到" in agree:

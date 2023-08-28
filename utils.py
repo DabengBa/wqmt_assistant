@@ -25,7 +25,7 @@ def test_menu():
 
 def gen_ran():
   ran = random.uniform(-0.005, 0.005)
-  return ran
+  return str(ran)
 
 # ADB
 ## Connection
@@ -48,15 +48,15 @@ def adb_get_resolution():
 
 def adb_swap(x, y, xx, yy, ran=0, sleepn=0.2):
   if ran == 1:
-    gen_ran()
-    subprocess.run(["adb", '-s', devicename,"shell", "input", "touchscreen", "swipe", str(x)+ran, str(y)+ran, str(xx)+ran, str(yy)+ran])
+    ran = gen_ran()
+    subprocess.run(["adb", '-s', devicename,"shell", "input", "touchscreen", "swipe", str(float(x)+float(ran)), str(float(y)+float(ran)), str(float(xx)+float(ran)), str(float(yy)+float(ran))])
   else:
     subprocess.run(["adb", '-s', devicename,"shell", "input", "touchscreen", "swipe", str(x), str(y), str(xx), str(yy)])
 
   time.sleep(sleepn)
 
 def adb_swap_percent(x_percent, y_percent, xx_percent, yy_percent, ran =0, sleepn=0.2):
-  width, height = adb_get_resolution(devicename)
+  width, height = adb_get_resolution()
   x_pixel = width * x_percent
   y_pixel = height * y_percent
   xx_pixel = width * xx_percent
@@ -65,14 +65,14 @@ def adb_swap_percent(x_percent, y_percent, xx_percent, yy_percent, ran =0, sleep
 
 def adb_click(x, y,ran=0, sleepn=0.2):
   if ran == 1:
-    gen_ran()
-    subprocess.run(['adb', '-s', devicename, 'shell', 'input', 'tap', str(x)+ran, str(y)+ran])
+    ran = gen_ran()
+    subprocess.run(['adb', '-s', devicename, 'shell', 'input', 'tap', str(float(x)+float(ran)), str(float(y)+float(ran))])
   else:
     subprocess.run(['adb', '-s', devicename, 'shell', 'input', 'tap', str(x), str(y)])
   time.sleep(sleepn)
 
 def adb_click_percent(x_percent, y_percent,ran=0, sleepn=0.2):
-  width, height = adb_get_resolution(devicename)
+  width, height = adb_get_resolution()
   x_pixel = width * x_percent
   y_pixel = height * y_percent
   adb_click(str(x_pixel), str(y_pixel),ran, sleepn)
