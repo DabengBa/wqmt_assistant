@@ -17,6 +17,11 @@ def options():
     return selected_options
 
 if __name__ == '__main__':
+    [put_text(" ") for i in range(5)]
+    put_text("请提前在Config.yaml中配置好mumu的ip地址和端口")
+    put_text("建议按照12小时间隔，早晚各一次。晚上执行的时候请在17点之后，以便领取体力")
+    put_text("请在游戏进入界面执行程序，就是有“点击开始”的哪个页面")
+
     options = ['早一次', '晚一次', '自选']
     selected_options = actions("嗯……", options)
     if "早一次" in selected_options:
