@@ -2,13 +2,6 @@ import subprocess
 import time
 import cv2
 import yaml
-import os
-import numpy as np
-<<<<<<< Updated upstream
-import uiautomator2 as u2
-
-=======
->>>>>>> Stashed changes
 
 with open('config.yaml', 'r') as f:
   config = yaml.safe_load(f)
@@ -49,23 +42,14 @@ def adb_disconnect():
 def adb_connect(ipport):
   # 执行adb connect命令
   subprocess.run(['adb', 'connect', ipport])
-<<<<<<< Updated upstream
 
 def adb_screenshot(remote_path, local_path, devicename):# 屏幕截图覆盖screenshop.png
   subprocess.run(['adb', '-s', devicename, 'shell', 'screencap', remote_path])
   subprocess.run(['adb', '-s', devicename, 'pull', remote_path, local_path])
 
-### 屏幕控制
 def adb_swap(x, y, xx, yy, sleepn=0.2):
   subprocess.run(["adb", '-s', devicename,"shell", "input", "touchscreen", "swipe", str(x), str(y), str(xx), str(yy)])
-=======
-def adb_screenshot(remote_path, local_path):# 屏幕截图覆盖screenshop.png
-  subprocess.run(['adb', 'shell', 'screencap', remote_path])
-  subprocess.run(['adb', 'pull', remote_path, local_path])
-### 屏幕控制
-def adb_swap(x, y, xx, yy, sleepn=0):
-  subprocess.run(["adb", "shell", "input", "touchscreen", "swipe", str(x), str(y), str(xx), str(yy)])
->>>>>>> Stashed changes
+
   time.sleep(sleepn)
 def adb_swap_percent(x_percent, y_percent, xx_percent, yy_percent, sleepn=0.2):
   width, height = adb_get_resolution(devicename)
@@ -82,31 +66,24 @@ def adb_tohome():
   if center is None:
     center = comparebackxy('./Target/Phone/home.png',0.9)
     if center is None:
-      print('也不是home，尝试回到home')
       subprocess.run(["adb", "shell", "input", "keyevent", "3"])
       time.sleep(1) 
       center = comparebackxy('./Target/Phone/home.png',0.9)
       if center is None:
-        print('回到home失败，停止程序')
         import sys
         sys.exit()
-    else:
-      print('已经是home')
   else:
-    print('需要解锁')
     x,y = center
     xx = x
     y = y - 300
     yy = y - 1000
-    print(x,y,xx,yy)
     adb_swap(x, y, xx, yy, 2)
     subprocess.run(["adb", "shell", "input", "keyevent", "3"])# 回到Home
   subprocess.run(["adb", "shell", "settings", "put", "system", "screen_brightness", "0"])  # 调整亮度
 def adb_end():
   subprocess.run(["adb", "shell", "svc", "power", "stayon", "false"])  # 恢复防止息屏
   subprocess.run(["adb", "shell", "settings", "put", "system", "screen_brightness", "50"])  # 恢复调整亮度
-  print('Complete')
-<<<<<<< Updated upstream
+
 def adb_click(x, y,sleepn=0.2):
   subprocess.run(['adb', '-s', devicename, 'shell', 'input', 'tap', str(x), str(y)])
   time.sleep(sleepn)
@@ -121,11 +98,6 @@ def adb_click_percent(x_percent, y_percent,sleepn=0.2):
   x_pixel = width * x_percent
   y_pixel = height * y_percent
   adb_click(str(x_pixel), str(y_pixel),sleepn)
-=======
-def adb_click(x,y,sleepn=0):
-  subprocess.run(["adb", "shell", "input", "tap", str(x), str(y)])
-  time.sleep(sleepn)
->>>>>>> Stashed changes
 
 #CV
 def comparebackxy(targetpic,threshold=0.9):
@@ -143,22 +115,8 @@ def comparebackxy(targetpic,threshold=0.9):
     """ right_bottom = (left_top[0] + w, left_top[1] + h)  # 右下角
         cv2.rectangle(img, left_top, right_bottom, 255, 2)  # 画出矩形位置
         cv2.imwrite('./log/result.png', img) # 保存本次的最大值 """
-    print(max_val)
     if max_val > threshold:
       x = max_loc[0] + w // 2
       y = max_loc[1] + h // 2
-      print('找到目标区域,坐标为:', x, y)
       center = x, y
       return center
-    else:
-      print('未找到，最大相似度为'+str(max_val))
-    """       center = None  # 在else的情况下，返回center为空值
-          return center """
-
-
-
-
-
-
-
-
