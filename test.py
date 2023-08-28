@@ -13,5 +13,5 @@ devicename = config['devicename']
 # adb_connect()
 
 # comparebackxy('./Target/wqmt/fuben1.png')
-pywebio_screenpresent()
+comparebackxy_test('./Target/wqmt/fubensaodang.png',threshold=0.9)
 # adb_disconnect()

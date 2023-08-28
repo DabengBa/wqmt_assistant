@@ -101,6 +101,24 @@ def comparebackxy(targetpic,threshold=0.9): #找图，返回坐标
   else:
     return None
 
+def comparebackxy_test(targetpic,threshold=0.9): #找图，返回坐标, 显示
+  adb_screenshot()
+  img = cv2.imread(local_path, 0) # 屏幕图片
+  template = cv2.imread(targetpic, 0) # 寻找目标
+  h, w = template.shape[:2]  # rows->h, cols->w
+  # 相关系数匹配方法：cv2.TM_CCOEFF
+  res = cv2.matchTemplate(img, template, cv2.TM_CCOEFF_NORMED)
+  _, max_val, _, max_loc = cv2.minMaxLoc(res)
+  if max_val > threshold:
+    x = max_loc[0] + w // 2
+    y = max_loc[1] + h // 2
+    put_text(str(max_val))
+    put_text(str(x),str(y))
+    return x, y
+  else:
+    put_text(str(max_val))
+    return None
+
 #pywebio
 
 
