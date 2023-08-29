@@ -20,12 +20,11 @@ def test_menu():
     morning()
   if "2" in selected_options:
     night()
-  # 递归调用主菜单函数，以实现循环显示菜单
-  test_menu()
+  test_menu() # 递归调用主菜单函数，以实现循环显示菜单
 
 def gen_ran():
   ran = random.uniform(-0.005, 0.005)
-  return str(ran)
+  return float(ran)
 
 # ADB
 ## Connection
@@ -34,7 +33,6 @@ def adb_disconnect():
   subprocess.run(['adb', 'disconnect', devicename], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 def adb_connect():
-  # 执行adb connect命令
   try:
     subprocess.run(['adb', 'connect', devicename], 
           stdout=subprocess.DEVNULL, 
@@ -53,7 +51,8 @@ def adb_get_resolution():
 def adb_swap(x, y, xx, yy, ran=0, sleepn=0.2):
   if ran == 1:
     ran = gen_ran()
-    subprocess.run(["adb", '-s', devicename,"shell", "input", "touchscreen", "swipe", str(float(x)+float(ran)), str(float(y)+float(ran)), str(float(xx)+float(ran)), str(float(yy)+float(ran))])
+    subprocess.run(["adb", '-s', devicename,"shell", "input", "touchscreen", "swipe", 
+                    str(float(x)+float(ran)), str(float(y)+float(ran)), str(float(xx)+float(ran)), str(float(yy)+float(ran))])
     time.sleep(sleepn)
   else:
     subprocess.run(["adb", '-s', devicename,"shell", "input", "touchscreen", "swipe", str(x), str(y), str(xx), str(yy)])
