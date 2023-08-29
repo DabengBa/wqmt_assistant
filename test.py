@@ -1,5 +1,6 @@
 import os
 from utils import *
+from wqmt import *
 from pywebio.input import *
 from pywebio.output import *
 from pywebio import *
@@ -32,6 +33,5 @@ def test_comparebackxy(targetpic,threshold=0.9): #找图，返回坐标, 显示
 # adb_connect()
 
 # comparebackxy('./Target/wqmt/fuben1.png')
-test_comparebackxy('./Target/wqmt/fubensaodang.png',threshold=0.9)
-compare_click('./Target/wqmt/fubensaodang.png',success="成功",fail="失败")
+homequit()
 # adb_disconnect()

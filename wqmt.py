@@ -16,8 +16,10 @@ def starttohome():# 启动到home
     # 进入主界面
     [topquit() for i in range(2)]
     compare_click('./Target/wqmt/cancell.png',success="@@@@@@@已经取消月卡购买界面，请之后注意补充@@@@",fail="") # 检查月卡提示
+    put_text("检查月卡提示")
     [topquit() for i in range(2)]
     compare_click('./Target/wqmt/confirm.png',success="@@@@@@@已经取消公会战提醒，请之后记得参加@@@@",fail="") 
+    put_text("检查工会战提示")
     [topquit() for i in range(2)]
     adb_click_percent(0.683, 0.53, sleepn=1) # 展开面板 - 需要替换 面板展开()
 
@@ -53,10 +55,10 @@ def getmail():
 
 def Bureau():
     put_text("管理局领体力，派遣")
-    compare_click('./Target/wqmt/glj1.png', sleepn=2)
+    compare_click('./Target/wqmt/glj1.png', sleepn=3)
     ## 收体力
-    adb_click_percent(0.143, 0.456,sleepn=2)
-    [compare_click('./Target/wqmt/lingqu.png', sleepn=2 times=2) for i in range(2)]
+    [adb_click_percent(0.143, 0.456,sleepn=3) for i in range(2)]
+    [compare_click('./Target/wqmt/lingqu.png', sleepn=3, times=3) for i in range(2)]
     topquit() # 退到管理局
     ## 派遣
     adb_click_percent(0.44, 0.742,sleepn=2)
@@ -99,7 +101,7 @@ def purchase(): # 采购办领免费体力
 
 def raidriver(): # 绣河
     put_text("开始绣河")
-    compare_click('./Target/wqmt/fuben1.png', sleepn=2) # 打开副本
+    compare_click('./Target/wqmt/fuben1.png', sleepn=3) # 打开副本
     adb_click_percent(0.172, 0.926, sleepn=2) # 打开绣河
     compare_click('./Target/wqmt/fuben2.png', sleepn=2, success="打开记忆风暴") 
     adb_click_percent(0.835, 0.682, sleepn=2)
@@ -117,6 +119,7 @@ def raid11(): # 刷11章
     compare_click('./Target/wqmt/fubensaodang.png', sleepn=2, success="点击连续扫荡")
     [adb_click_percent(0.712, 0.683, ran=1,) for i in range(5)] # 点击+号
     compare_click('./Target/wqmt/fubensaodangkaishi.png', sleepn=10, success="点击开始")
+    topquit()
     [homequit() for i in range(2)]
 
 def raiddark():## 深井

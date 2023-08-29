@@ -2,7 +2,6 @@ default_options:
 - "\u526F\u672C-\u9508\u6CB3\u8BB0\u5FC6"
 - "\u526F\u672C-11-6"
 - "\u526F\u672C-\u6DF1\u4E95"
-# devicename: 127.0.0.1:16384
 devicename: 127.0.0.1:16416
 devicesn: 65f703a7
 local_path: ./screenshot.png

@@ -54,10 +54,10 @@ def adb_swap(x, y, xx, yy, ran=0, sleepn=0.2):
   if ran == 1:
     ran = gen_ran()
     subprocess.run(["adb", '-s', devicename,"shell", "input", "touchscreen", "swipe", str(float(x)+float(ran)), str(float(y)+float(ran)), str(float(xx)+float(ran)), str(float(yy)+float(ran))])
+    time.sleep(sleepn)
   else:
     subprocess.run(["adb", '-s', devicename,"shell", "input", "touchscreen", "swipe", str(x), str(y), str(xx), str(yy)])
-
-  time.sleep(sleepn)
+    time.sleep(sleepn)
 
 def adb_swap_percent(x_percent, y_percent, xx_percent, yy_percent, ran =0, sleepn=0.2):
   width, height = adb_get_resolution()
@@ -71,15 +71,18 @@ def adb_click(x, y,ran=0, sleepn=0.2):
   if ran == 1:
     ran = gen_ran()
     subprocess.run(['adb', '-s', devicename, 'shell', 'input', 'tap', str(float(x)+float(ran)), str(float(y)+float(ran))])
+    time.sleep(sleepn)
   else:
     subprocess.run(['adb', '-s', devicename, 'shell', 'input', 'tap', str(x), str(y)])
-  time.sleep(sleepn)
+    time.sleep(sleepn)
+  
 
 def adb_click_percent(x_percent, y_percent,ran=0, sleepn=0.2):
   width, height = adb_get_resolution()
   x_pixel = width * x_percent
   y_pixel = height * y_percent
   adb_click(str(x_pixel), str(y_pixel),ran, sleepn)
+  time.sleep(sleepn)
 
 def adb_screenshot():# 屏幕截图覆盖screenshop.png
   # 执行adb命令获取屏幕截图，将输出重定向到空设备
@@ -104,15 +107,17 @@ def comparebackxy(targetpic,threshold=0.9): #找图，返回坐标
   else:
     return None
 
-def compare_click(targetpic, threshold=0.9, sleepn=0.2, times=1,success="",fail=""):
+def compare_click(targetpic, threshold=0.9, sleepn=0.2, times=1, success="",fail=""):
     center = comparebackxy(targetpic,threshold)
     if center:
       put_text(success)
       x,y = center
       [adb_click(x, y, sleepn) for i in range(times)]
+      time.sleep(sleepn)
       return x, y
     else:
       put_text(fail)
+      time.sleep(sleepn)
       return None
 
 
