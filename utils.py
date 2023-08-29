@@ -35,8 +35,12 @@ def adb_disconnect():
 
 def adb_connect():
   # 执行adb connect命令
-  subprocess.run(['adb', 'connect', devicename], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-
+  try:
+    subprocess.run(['adb', 'connect', devicename], 
+          stdout=subprocess.DEVNULL, 
+          stderr=subprocess.DEVNULL)
+  except subprocess.CalledProcessError:
+    print(f"连接设备{devicename}失败!, 请检查config中的device配置")
 ## UI Control
 
 def adb_get_resolution():
@@ -90,34 +94,27 @@ def comparebackxy(targetpic,threshold=0.9): #找图，返回坐标
   adb_screenshot()
   img = cv2.imread(local_path, 0) # 屏幕图片
   template = cv2.imread(targetpic, 0) # 寻找目标
-  h, w = template.shape[:2]  # rows->h, cols->w
-  # 相关系数匹配方法：cv2.TM_CCOEFF
-  res = cv2.matchTemplate(img, template, cv2.TM_CCOEFF_NORMED)
+  h, w = template.shape[:2]
+  res = cv2.matchTemplate(img, template, cv2.TM_CCOEFF_NORMED)# 相关系数匹配方法：cv2.TM_CCOEFF
   _, max_val, _, max_loc = cv2.minMaxLoc(res)
+  x = max_loc[0] + w // 2
+  y = max_loc[1] + h // 2
   if max_val > threshold:
-    x = max_loc[0] + w // 2
-    y = max_loc[1] + h // 2
     return x, y
   else:
     return None
 
-def comparebackxy_test(targetpic,threshold=0.9): #找图，返回坐标, 显示
-  adb_screenshot()
-  img = cv2.imread(local_path, 0) # 屏幕图片
-  template = cv2.imread(targetpic, 0) # 寻找目标
-  h, w = template.shape[:2]  # rows->h, cols->w
-  # 相关系数匹配方法：cv2.TM_CCOEFF
-  res = cv2.matchTemplate(img, template, cv2.TM_CCOEFF_NORMED)
-  _, max_val, _, max_loc = cv2.minMaxLoc(res)
-  if max_val > threshold:
-    x = max_loc[0] + w // 2
-    y = max_loc[1] + h // 2
-    put_text(str(max_val))
-    put_text(str(x),str(y))
-    return x, y
-  else:
-    put_text(str(max_val))
-    return None
+def compare_click(targetpic, threshold=0.9, sleepn=0.2, times=1,success="",fail=""):
+    center = comparebackxy(targetpic,threshold)
+    if center:
+      put_text(success)
+      x,y = center
+      [adb_click(x, y, sleepn) for i in range(times)]
+      return x, y
+    else:
+      put_text(fail)
+      return None
+
 
 #pywebio
 
