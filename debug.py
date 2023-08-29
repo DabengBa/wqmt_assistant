@@ -7,6 +7,7 @@ import os
 from pywebio import *
 from pywebio.input import *
 from pywebio.output import *
+import datetime
 
 with open('config.yaml', 'r') as f:
   config = yaml.safe_load(f)
@@ -32,6 +33,16 @@ def gen_ran():
     """
     ran = random.uniform(-0.005, 0.005)
     return float(ran)
+
+def get_time():
+  """
+  des:
+      获取当前时间，例如 "2023-08-30 08:03:02"
+  使用方法：
+      put_text("开始"，get_time()）
+  """
+  time_stamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+  return time_stamp
 
 # ADB
 ## Connection
@@ -59,11 +70,10 @@ def adb_swap(x, y, xx, yy, ran=0, sleepn=0.2):
     if ran == 1:
         ran = gen_ran()
         swipe_coordinates = [str(float(x)+float(ran)), str(float(y)+float(ran)), str(float(xx)+float(ran)), str(float(yy)+float(ran))]
-        print(f"swap{str(float(x)+float(ran)), str(float(y)+float(ran)), str(float(xx)+float(ran)), str(float(yy)+float(ran))}")
     else:
         swipe_coordinates = [str(x), str(y), str(xx), str(yy)]
-        print(f"swap{str(x), str(y), str(xx), str(yy):.3f}")
     subprocess.run(["adb", "-s", devicename, "shell", "input", "touchscreen", "swipe"] + swipe_coordinates)
+    put_text(f"滑动坐标{swipe_coordinates}，{get_time()}")
     time.sleep(sleepn)
 
 def adb_swap_percent(x_percent, y_percent, xx_percent, yy_percent, ran=0, sleepn=0.2):
@@ -77,10 +87,10 @@ def adb_click(x, y,ran=0, sleepn=0.2):
     if ran == 1:
         ran = gen_ran()
         click_coordinates = [str(float(x)+float(ran)), str(float(y)+float(ran))]
-        print(f"click{str(float(x)+float(ran)), str(float(y)+float(ran))}")
     else:
         click_coordinates = [str(x), str(y)]
     subprocess.run(["adb", "-s", devicename, "shell", "input", "tap"] + click_coordinates)
+    put_text(f"点击坐标{click_coordinates}，{get_time()}")
     time.sleep(sleepn)
   
 def adb_click_percent(x_percent, y_percent,ran=0, sleepn=0.2):
@@ -108,16 +118,13 @@ def comparebackxy(targetpic,threshold=0.9): #找图，返回坐标
 def compare_click(targetpic, threshold=0.9, sleepn=0.2, times=1, success="success",fail="fail"):
     center = comparebackxy(targetpic,threshold)
     if center:
-        put_text(success)
+        put_text(success,get_time())
         x,y = center
         for _ in range(times):
-            adb_click(x, y, sleepn)
+            adb_click(x, y)
             time.sleep(sleepn)
         return x, y
     else:
-        put_text(fail)
+        put_text(fail, get_time())
         time.sleep(sleepn)
         return None
-    
-adb_connect()
-compare_click('./Target/wqmt/fuben1.png',threshold=0.9)

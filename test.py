@@ -1,5 +1,5 @@
 import os
-from utils import *
+from debug import *
 from wqmt import *
 from pywebio.input import *
 from pywebio.output import *
@@ -31,7 +31,10 @@ def test_comparebackxy(targetpic,threshold=0.9): #找图，返回坐标, 显示
     put_text(f"没找到，最大匹配度{max_val:.3f}，坐标{x},{y}")
     return None
 # adb_connect()
-
+def get_time():
+  time_stamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+  return time_stamp
 # comparebackxy('./Target/wqmt/fuben1.png')
-homequit()
+compare_click('./Target/wqmt/caigouban1.png', sleepn=4)
+compare_click('./Target/wqmt/caigouban1.png', sleepn=4)
 # adb_disconnect()
