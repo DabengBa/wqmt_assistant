@@ -2,7 +2,7 @@ from debug import *
 
 def topquit():
     put_text("开始：尝试从上方退出潜在弹窗与结算窗口")
-    [adb_click_percent(0.43, 0.03, sleepn=1,ran=1) for i in range(3)]
+    [adb_click_percent(0.47, 0.03, sleepn=1,ran=1) for i in range(3)]
     put_text("完成：尝试从上方退出潜在弹窗与结算窗口")
 def homequit():
     put_text("开始：尝试从home按钮退出")
@@ -16,13 +16,13 @@ def starttohome():# 启动到home
     if center:
         topquit()
     put_text("点击开始")
-    [adb_click_percent(0.497656, 0.9, ran=1, sleepn=1) for i in range(2)]
+    compare_click('./Target/wqmt/login.png', threshold=0.8, sleepn=4)
     put_text("等待16秒-->等待游戏完全进入主页面")
     time.sleep(16)
     topquit()
 
     while True:
-        center = comparebackxy('./Target/wqmt/fuben1.png')
+        center = comparebackxy('./Target/wqmt/fuben1.png', threshold=0.85)
         if center:
             break
         else:

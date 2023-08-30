@@ -112,7 +112,7 @@ def comparebackxy(targetpic,threshold=0.9): #找图，返回坐标
   res = cv2.matchTemplate(img, template, cv2.TM_CCOEFF_NORMED)# 相关系数匹配方法：cv2.TM_CCOEFF
   _, max_val, _, max_loc = cv2.minMaxLoc(res)
   x, y = max_loc[0] + w // 2, max_loc[1] + h // 2
-  print(f"寻找{targetpic}, 最大匹配度{max_val:.3f}，坐标{x},{y}")
+  put_text(f"寻找{targetpic}, 最大匹配度{max_val:.3f}，坐标{x},{y}")
   return (x, y) if max_val > threshold else None
 
 def compare_click(targetpic, threshold=0.9, sleepn=0.2, times=1, success="success",fail="fail"):
