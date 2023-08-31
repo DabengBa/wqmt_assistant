@@ -3,15 +3,17 @@ import subprocess
 import time
 import cv2
 import yaml
+from pywebio import *
 from pywebio.input import *
 from pywebio.output import *
-from pywebio import *
+import datetime
 
 with open('config.yaml', 'r') as f:
   config = yaml.safe_load(f)
 remote_path = config['remote_path']
 local_path = config['local_path']
 devicename = config['devicename']
+adb_path = config['adb_path']
 
 def test_menu():
   options = ['1', '2']
@@ -23,72 +25,82 @@ def test_menu():
   test_menu() # 递归调用主菜单函数，以实现循环显示菜单
 
 def gen_ran():
-  ran = random.uniform(-0.005, 0.005)
-  return float(ran)
+    """
+    des:
+        随机生成一个浮点数 
+    使用方法：
+        ran = gen_ran()
+    """
+    ran = random.randint(-5, 5)
+    return ran
+
+def get_time():
+  """
+  des:
+      获取当前时间，例如 "2023-08-30 08:03:02"
+  使用方法：
+      put_text("开始"，get_time()）
+  """
+  time_stamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+  return time_stamp
 
 # ADB
 ## Connection
-def adb_disconnect():
-  # 执行adb命令来断开设备连接
-  subprocess.run(['adb', 'disconnect', devicename], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+def adb_disconnect(): # 断开设备
+  subprocess.run([adb_path, 'disconnect', devicename], 
+                 stdout=subprocess.DEVNULL, 
+                 stderr=subprocess.DEVNULL)
 
-def adb_connect():
-  try:
-    subprocess.run(['adb', 'connect', devicename], 
-          stdout=subprocess.DEVNULL, 
-          stderr=subprocess.DEVNULL)
-  except subprocess.CalledProcessError:
-    print(f"连接设备{devicename}失败!, 请检查config中的device配置")
+def adb_connect(): # 连接设备，失败则报错
+    result = subprocess.run([adb_path,'connect',devicename], 
+                stdout=subprocess.PIPE, 
+                stderr=subprocess.PIPE)
+    if str(result.stdout).find('cannot') != -1:
+        put_text("连接模拟器失败，请见检查congfig中devicename的配置")
+
 ## UI Control
-
 def adb_get_resolution():
-  output = subprocess.check_output(['adb', '-s', devicename, 'shell', 'wm', 'size']).decode()
-  res = output.split()[-1].split('x')
-  width = int(res[0])
-  height = int(res[1])
-  return width, height
+    process = subprocess.Popen([adb_path, '-s', devicename, 'shell', 'wm', 'size'], stdout=subprocess.PIPE)
+    output = process.stdout.read().decode()
+    height, width = map(int, output.split()[-1].split('x'))
+    return width, height
 
-def adb_swap(x, y, xx, yy, ran=0, sleepn=0.2):
-  if ran == 1:
-    ran = gen_ran()
-    subprocess.run(["adb", '-s', devicename,"shell", "input", "touchscreen", "swipe", 
-                    str(float(x)+float(ran)), str(float(y)+float(ran)), str(float(xx)+float(ran)), str(float(yy)+float(ran))])
-    time.sleep(sleepn)
-  else:
-    subprocess.run(["adb", '-s', devicename,"shell", "input", "touchscreen", "swipe", str(x), str(y), str(xx), str(yy)])
+def adb_swipe(x, y, xx, yy, ran=0, sleepn=0.2):
+    if ran == 1:
+        ran = gen_ran()
+        swipe_coordinates = [str(x+ran), str(y+ran), str(xx+ran), str(yy+ran)]
+    else:
+        swipe_coordinates = [str(x), str(y), str(xx), str(yy)]
+    subprocess.run(["adb", "-s", devicename, 
+                    "shell", "input", "touchscreen", "swipe"] + swipe_coordinates)
+    put_text(f"滑动坐标{swipe_coordinates}，{get_time()}")
     time.sleep(sleepn)
 
-def adb_swap_percent(x_percent, y_percent, xx_percent, yy_percent, ran =0, sleepn=0.2):
-  width, height = adb_get_resolution()
-  x_pixel = width * x_percent
-  y_pixel = height * y_percent
-  xx_pixel = width * xx_percent
-  yy_pixel = height * yy_percent
-  adb_swap(x_pixel, y_pixel, xx_pixel, yy_pixel, ran, sleepn)
+def adb_swipe_percent(x_percent, y_percent, xx_percent, yy_percent, ran=0, sleepn=0.2):
+    x_pixel = round(adb_get_resolution()[0] * x_percent,2)
+    y_pixel = round(adb_get_resolution()[1] * y_percent,2)
+    xx_pixel = round(adb_get_resolution()[0] * xx_percent,2)
+    yy_pixel = round(adb_get_resolution()[1] * yy_percent,2)
+    adb_swipe(x_pixel, y_pixel, xx_pixel, yy_pixel, ran, sleepn)
 
 def adb_click(x, y,ran=0, sleepn=0.2):
-  if ran == 1:
-    ran = gen_ran()
-    subprocess.run(['adb', '-s', devicename, 'shell', 'input', 'tap', str(float(x)+float(ran)), str(float(y)+float(ran))])
-    time.sleep(sleepn)
-  else:
-    subprocess.run(['adb', '-s', devicename, 'shell', 'input', 'tap', str(x), str(y)])
+    if ran == 1:
+        ran = gen_ran()
+        click_coordinates = [str(x+ran), str(y+ran)]
+    else:
+        click_coordinates = [str(x), str(y)]
+    subprocess.run([adb_path, "-s", devicename, "shell", "input", "tap"] + click_coordinates)
+    put_text(f"点击坐标{click_coordinates}，{get_time()}")
     time.sleep(sleepn)
   
-
 def adb_click_percent(x_percent, y_percent,ran=0, sleepn=0.2):
-  width, height = adb_get_resolution()
-  x_pixel = width * x_percent
-  y_pixel = height * y_percent
-  adb_click(str(x_pixel), str(y_pixel),ran, sleepn)
-  time.sleep(sleepn)
+    x_pixel = round(adb_get_resolution()[0] * x_percent,2)
+    y_pixel = round(adb_get_resolution()[1] * y_percent,2)
+    adb_click(x_pixel, y_pixel, ran, sleepn)
 
-def adb_screenshot():# 屏幕截图覆盖screenshop.png
-  # 执行adb命令获取屏幕截图，将输出重定向到空设备
-  subprocess.run(['adb', '-s', devicename, 'shell', 'screencap', remote_path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-  # 将截图从设备复制到本地，将输出重定向到空设备
-  subprocess.run(['adb', '-s', devicename, 'pull', remote_path, local_path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-  # 输出图片
+def adb_screenshot():# 屏幕截图覆盖screenshop.png, 使用DEVNULL避免输出命令行
+  subprocess.run([adb_path, '-s', devicename, 'shell', 'screencap', remote_path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+  subprocess.run([adb_path, '-s', devicename, 'pull', remote_path, local_path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
   put_image(open(local_path, 'rb').read(),width='500px')
 
 #CV
@@ -99,54 +111,20 @@ def comparebackxy(targetpic,threshold=0.9): #找图，返回坐标
   h, w = template.shape[:2]
   res = cv2.matchTemplate(img, template, cv2.TM_CCOEFF_NORMED)# 相关系数匹配方法：cv2.TM_CCOEFF
   _, max_val, _, max_loc = cv2.minMaxLoc(res)
-  x = max_loc[0] + w // 2
-  y = max_loc[1] + h // 2
-  if max_val > threshold:
-    return x, y
-  else:
-    return None
+  x, y = max_loc[0] + w // 2, max_loc[1] + h // 2
+  put_text(f"寻找{targetpic}, 最大匹配度{max_val:.2f}，坐标{x},{y}")
+  return (x, y) if max_val > threshold else None
 
-def compare_click(targetpic, threshold=0.9, sleepn=0.2, times=1, success="",fail=""):
+def compare_click(targetpic, threshold=0.9, sleepn=0.2, times=1, success="success",fail="fail"):
     center = comparebackxy(targetpic,threshold)
     if center:
-      put_text(success)
-      x,y = center
-      [adb_click(x, y, sleepn) for i in range(times)]
-      time.sleep(sleepn)
-      return x, y
+        put_text(success,get_time())
+        x,y = center
+        for _ in range(times):
+            adb_click(x, y)
+            time.sleep(sleepn)
+        return x, y
     else:
-      put_text(fail)
-      time.sleep(sleepn)
-      return None
-
-
-#pywebio
-
-
-
-    
-""" 真机使用，无需调用
-def adb_tohome():
-  subprocess.run(["adb", "shell", "svc", "power", "stayon", "true"])  # 防止息屏&点亮屏幕
-  center = comparebackxy('./Target/Phone/lock.png',0.85)
-  if center is None:
-    center = comparebackxy('./Target/Phone/home.png',0.9)
-    if center is None:
-      subprocess.run(["adb", "shell", "input", "keyevent", "3"])
-      time.sleep(1) 
-      center = comparebackxy('./Target/Phone/home.png',0.9)
-      if center is None:
-        import sys
-        sys.exit()
-  else:
-    x,y = center
-    xx = x
-    y = y - 300
-    yy = y - 1000
-    adb_swap(x, y, xx, yy, 2)
-    subprocess.run(["adb", "shell", "input", "keyevent", "3"])# 回到Home
-  subprocess.run(["adb", "shell", "settings", "put", "system", "screen_brightness", "0"])  # 调整亮度
-
-def adb_end():
-  subprocess.run(["adb", "shell", "svc", "power", "stayon", "false"])  # 恢复防止息屏
-  subprocess.run(["adb", "shell", "settings", "put", "system", "screen_brightness", "50"])  # 恢复调整亮度 """
+        put_text(fail, get_time())
+        time.sleep(sleepn)
+        return None

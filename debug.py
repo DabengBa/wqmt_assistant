@@ -3,7 +3,6 @@ import subprocess
 import time
 import cv2
 import yaml
-import os
 from pywebio import *
 from pywebio.input import *
 from pywebio.output import *
@@ -14,6 +13,7 @@ with open('config.yaml', 'r') as f:
 remote_path = config['remote_path']
 local_path = config['local_path']
 devicename = config['devicename']
+adb_path = config['adb_path']
 
 def test_menu():
   options = ['1', '2']
@@ -47,21 +47,20 @@ def get_time():
 # ADB
 ## Connection
 def adb_disconnect(): # 断开设备
-  subprocess.run(['adb', 'disconnect', devicename], 
+  subprocess.run([adb_path, 'disconnect', devicename], 
                  stdout=subprocess.DEVNULL, 
                  stderr=subprocess.DEVNULL)
 
 def adb_connect(): # 连接设备，失败则报错
-  try:
-    subprocess.run(['adb', 'connect', devicename], 
-          stdout=subprocess.DEVNULL, 
-          stderr=subprocess.DEVNULL)
-  except subprocess.CalledProcessError:
-    put_text(f"连接设备{devicename}失败!, 请检查config中的device配置")
+    result = subprocess.run([adb_path,'connect',devicename], 
+                stdout=subprocess.PIPE, 
+                stderr=subprocess.PIPE)
+    if str(result.stdout).find('cannot') != -1:
+        put_text("连接模拟器失败，请见检查congfig中devicename的配置")
 
 ## UI Control
 def adb_get_resolution():
-    process = subprocess.Popen(['adb', '-s', devicename, 'shell', 'wm', 'size'], stdout=subprocess.PIPE)
+    process = subprocess.Popen([adb_path, '-s', devicename, 'shell', 'wm', 'size'], stdout=subprocess.PIPE)
     output = process.stdout.read().decode()
     height, width = map(int, output.split()[-1].split('x'))
     return width, height
@@ -90,7 +89,7 @@ def adb_click(x, y,ran=0, sleepn=0.2):
         click_coordinates = [str(x+ran), str(y+ran)]
     else:
         click_coordinates = [str(x), str(y)]
-    subprocess.run(["adb", "-s", devicename, "shell", "input", "tap"] + click_coordinates)
+    subprocess.run([adb_path, "-s", devicename, "shell", "input", "tap"] + click_coordinates)
     put_text(f"点击坐标{click_coordinates}，{get_time()}")
     time.sleep(sleepn)
   
@@ -100,8 +99,8 @@ def adb_click_percent(x_percent, y_percent,ran=0, sleepn=0.2):
     adb_click(x_pixel, y_pixel, ran, sleepn)
 
 def adb_screenshot():# 屏幕截图覆盖screenshop.png, 使用DEVNULL避免输出命令行
-  subprocess.run(['adb', '-s', devicename, 'shell', 'screencap', remote_path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-  subprocess.run(['adb', '-s', devicename, 'pull', remote_path, local_path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+  subprocess.run([adb_path, '-s', devicename, 'shell', 'screencap', remote_path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+  subprocess.run([adb_path, '-s', devicename, 'pull', remote_path, local_path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
   put_image(open(local_path, 'rb').read(),width='500px')
 
 #CV

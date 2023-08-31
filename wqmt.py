@@ -1,4 +1,4 @@
-from debug import *
+from utils import *
 
 def topquit():
     put_text("开始：尝试从上方退出潜在弹窗与结算窗口")

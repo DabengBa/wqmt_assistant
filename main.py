@@ -1,11 +1,13 @@
 from pywebio.input import *
 from pywebio.output import *
 import yaml
-from debug import *
+from utils import *
 from wqmt import *
 
 with open('config.yaml', 'r', encoding='utf-8') as f:
   config = yaml.safe_load(f)
+
+
 
 def select_jobs():
     options = ['启动', '签到', '公会','邮件','采购中心-每日免费体力','基建收菜','管理局','好友','副本-锈河记忆','副本-11-6','副本-深井']
