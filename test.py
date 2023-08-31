@@ -4,7 +4,7 @@ from wqmt import *
 from pywebio.input import *
 from pywebio.output import *
 from pywebio import *
-
+import uiautomator2 as u2 # 在家获取activities信息
 
 with open('config.yaml', 'r') as f:
   config = yaml.safe_load(f)
@@ -14,10 +14,7 @@ devicename = config['devicename']
 
 adb_connect() 
 
-# adb_connect()
-def get_time():
-  time_stamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-  return time_stamp
-# adb_screenshot()
-adb_click_percent(0.683, 0.53, sleepn=1)
+d = u2.connect(devicename)
+d.app_info("com.zy.wqmt.cn")
+# subprocess.run(["adb", "-s", devicename, "shell", "input", "tap", str(360), str(1150)])
 # adb_disconnect()

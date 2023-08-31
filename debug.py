@@ -63,7 +63,7 @@ def adb_connect(): # 连接设备，失败则报错
 def adb_get_resolution():
     process = subprocess.Popen(['adb', '-s', devicename, 'shell', 'wm', 'size'], stdout=subprocess.PIPE)
     output = process.stdout.read().decode()
-    width, height = map(int, output.split()[-1].split('x'))
+    height, width = map(int, output.split()[-1].split('x'))
     return width, height
 
 def adb_swap(x, y, xx, yy, ran=0, sleepn=0.2):
@@ -95,7 +95,9 @@ def adb_click(x, y,ran=0, sleepn=0.2):
   
 def adb_click_percent(x_percent, y_percent,ran=0, sleepn=0.2):
     x_pixel = adb_get_resolution()[0] * x_percent
+    print(x_pixel)
     y_pixel = adb_get_resolution()[1] * y_percent
+    print(y_pixel)
     adb_click(str(x_pixel), str(y_pixel),ran, sleepn) # 传入sleepn，本函数不需要再设置time.sleep
 
 def adb_screenshot():# 屏幕截图覆盖screenshop.png, 使用DEVNULL避免输出命令行
