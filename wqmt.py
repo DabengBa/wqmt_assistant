@@ -2,7 +2,7 @@ from debug import *
 
 def topquit():
     put_text("开始：尝试从上方退出潜在弹窗与结算窗口")
-    [adb_click_percent(0.47, 0.03, sleepn=1,ran=1) for i in range(3)]
+    [adb_click_percent(0.48, 0.03, sleepn=1,ran=1) for i in range(3)]
     put_text("完成：尝试从上方退出潜在弹窗与结算窗口")
 def homequit():
     put_text("开始：尝试从home按钮退出")
@@ -116,7 +116,7 @@ def purchase(): # 采购办领免费体力
     put_text("开始：采购办领体力"+get_time())
     compare_click('./Target/wqmt/caigouban1.png', sleepn=4)
     adb_click_percent(0.091, 0.41, sleepn=2)
-    [adb_swap_percent(0.965, 0.578, 0.27, 0.611, sleepn=1) for i in range(3)]
+    [adb_swipe_percent(0.965, 0.578, 0.27, 0.611, sleepn=1) for i in range(3)]
     put_text("准备打开礼包")
     adb_screenshot()
     adb_click_percent(0.587, 0.88, sleepn=2) # 收每日体力
@@ -154,7 +154,7 @@ def raid11(): # 刷11章
     put_text("开始：raid任务"+get_time())
     compare_click('./Target/wqmt/fuben1.png', sleepn=4, success="尝试打开副本界面")
     compare_click('./Target/wqmt/fuben3-11.png', sleepn=2, success="尝试打开11章")
-    [adb_swap_percent(0.965, 0.578, 0.27, 0.611, sleepn=1) for i in range(2)] # 滑动屏幕
+    [adb_swipe_percent(0.965, 0.578, 0.27, 0.611, sleepn=1) for i in range(2)] # 滑动屏幕
     adb_click_percent(0.078, 0.541, sleepn=2) # 点击11-6
     compare_click('./Target/wqmt/fubensaodang.png', sleepn=2, success="尝试点击连续扫荡")
     [adb_click_percent(0.712, 0.683, ran=1,) for i in range(5)] # 点击+号

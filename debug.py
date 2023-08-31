@@ -29,10 +29,10 @@ def gen_ran():
     des:
         随机生成一个浮点数 
     使用方法：
-        ran = genran()
+        ran = gen_ran()
     """
-    ran = random.uniform(-0.005, 0.005)
-    return float(ran)
+    ran = random.randint(-5, 5)
+    return ran
 
 def get_time():
   """
@@ -57,7 +57,7 @@ def adb_connect(): # 连接设备，失败则报错
           stdout=subprocess.DEVNULL, 
           stderr=subprocess.DEVNULL)
   except subprocess.CalledProcessError:
-    print(f"连接设备{devicename}失败!, 请检查config中的device配置")
+    put_text(f"连接设备{devicename}失败!, 请检查config中的device配置")
 
 ## UI Control
 def adb_get_resolution():
@@ -66,27 +66,28 @@ def adb_get_resolution():
     height, width = map(int, output.split()[-1].split('x'))
     return width, height
 
-def adb_swap(x, y, xx, yy, ran=0, sleepn=0.2):
+def adb_swipe(x, y, xx, yy, ran=0, sleepn=0.2):
     if ran == 1:
         ran = gen_ran()
-        swipe_coordinates = [str(float(x)+float(ran)), str(float(y)+float(ran)), str(float(xx)+float(ran)), str(float(yy)+float(ran))]
+        swipe_coordinates = [str(x+ran), str(y+ran), str(xx+ran), str(yy+ran)]
     else:
         swipe_coordinates = [str(x), str(y), str(xx), str(yy)]
-    subprocess.run(["adb", "-s", devicename, "shell", "input", "touchscreen", "swipe"] + swipe_coordinates)
+    subprocess.run(["adb", "-s", devicename, 
+                    "shell", "input", "touchscreen", "swipe"] + swipe_coordinates)
     put_text(f"滑动坐标{swipe_coordinates}，{get_time()}")
     time.sleep(sleepn)
 
-def adb_swap_percent(x_percent, y_percent, xx_percent, yy_percent, ran=0, sleepn=0.2):
-    x_pixel = adb_get_resolution()[0] * x_percent
-    y_pixel = adb_get_resolution()[1] * y_percent
-    xx_pixel = adb_get_resolution()[0] * xx_percent
-    yy_pixel = adb_get_resolution()[1] * yy_percent
-    adb_swap(x_pixel, y_pixel, xx_pixel, yy_pixel, ran, sleepn)
+def adb_swipe_percent(x_percent, y_percent, xx_percent, yy_percent, ran=0, sleepn=0.2):
+    x_pixel = round(adb_get_resolution()[0] * x_percent,2)
+    y_pixel = round(adb_get_resolution()[1] * y_percent,2)
+    xx_pixel = round(adb_get_resolution()[0] * xx_percent,2)
+    yy_pixel = round(adb_get_resolution()[1] * yy_percent,2)
+    adb_swipe(x_pixel, y_pixel, xx_pixel, yy_pixel, ran, sleepn)
 
 def adb_click(x, y,ran=0, sleepn=0.2):
     if ran == 1:
         ran = gen_ran()
-        click_coordinates = [str(float(x)+float(ran)), str(float(y)+float(ran))]
+        click_coordinates = [str(x+ran), str(y+ran)]
     else:
         click_coordinates = [str(x), str(y)]
     subprocess.run(["adb", "-s", devicename, "shell", "input", "tap"] + click_coordinates)
@@ -94,11 +95,9 @@ def adb_click(x, y,ran=0, sleepn=0.2):
     time.sleep(sleepn)
   
 def adb_click_percent(x_percent, y_percent,ran=0, sleepn=0.2):
-    x_pixel = adb_get_resolution()[0] * x_percent
-    print(x_pixel)
-    y_pixel = adb_get_resolution()[1] * y_percent
-    print(y_pixel)
-    adb_click(str(x_pixel), str(y_pixel),ran, sleepn) # 传入sleepn，本函数不需要再设置time.sleep
+    x_pixel = round(adb_get_resolution()[0] * x_percent,2)
+    y_pixel = round(adb_get_resolution()[1] * y_percent,2)
+    adb_click(x_pixel, y_pixel, ran, sleepn)
 
 def adb_screenshot():# 屏幕截图覆盖screenshop.png, 使用DEVNULL避免输出命令行
   subprocess.run(['adb', '-s', devicename, 'shell', 'screencap', remote_path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -114,7 +113,7 @@ def comparebackxy(targetpic,threshold=0.9): #找图，返回坐标
   res = cv2.matchTemplate(img, template, cv2.TM_CCOEFF_NORMED)# 相关系数匹配方法：cv2.TM_CCOEFF
   _, max_val, _, max_loc = cv2.minMaxLoc(res)
   x, y = max_loc[0] + w // 2, max_loc[1] + h // 2
-  put_text(f"寻找{targetpic}, 最大匹配度{max_val:.3f}，坐标{x},{y}")
+  put_text(f"寻找{targetpic}, 最大匹配度{max_val:.2f}，坐标{x},{y}")
   return (x, y) if max_val > threshold else None
 
 def compare_click(targetpic, threshold=0.9, sleepn=0.2, times=1, success="success",fail="fail"):
