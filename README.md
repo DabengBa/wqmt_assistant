@@ -37,7 +37,7 @@ pip install -r requirements.txt
 先打开无期迷途，然后如下启动程序
 
 ```
-python main.py
+start.bat
 ```
 
 Todo:
