@@ -90,7 +90,7 @@ def adb_click(x, y,ran=0, sleepn=0.2):
     else:
         click_coordinates = [str(x), str(y)]
     subprocess.run([adb_path, "-s", devicename, "shell", "input", "tap"] + click_coordinates)
-    put_text(f"点击坐标{click_coordinates}，{get_time()}")
+    # put_text(f"点击坐标{click_coordinates}，{get_time()}")
     time.sleep(sleepn)
   
 def adb_click_percent(x_percent, y_percent,ran=0, sleepn=0.2):

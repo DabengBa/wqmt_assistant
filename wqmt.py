@@ -64,6 +64,7 @@ def dailycheckin():
         adb_click_percent(0.558, 0.773, sleepn=0.5)
         adb_click_percent(0.67, 0.752, sleepn=0.5)
         adb_click_percent(0.792, 0.761, sleepn=0.5)
+    adb_screenshot()
     topquit()
     adb_screenshot()
     put_text("完成：Check-in"+get_time())
@@ -87,7 +88,7 @@ def Bureau():
     adb_screenshot()
     adb_click_percent(0.44, 0.742,sleepn=2)
     adb_screenshot()
-    [adb_click_percent(0.105, 0.707, ran=1, sleepn=3) for i in range(3)]
+    [adb_click_percent(0.105, 0.707, ran=1, sleepn=3) for i in range(4)]
     homequit()
     put_text("完成：管理局领体力，派遣"+get_time())
 
@@ -108,7 +109,7 @@ def construction(): # 基建
     put_text("开始聊天")
     [adb_click_percent(0.074, 0.249, sleepn=2) for i in range(2)]
     adb_click_percent(0.908, 0.612)
-    [adb_click_percent(0.908, 0.889, ran=1) for i in range(30)]
+    [adb_click_percent(0.908, 0.889, ran=1) for i in range(40)]
     homequit()
     put_text("完成：基建"+get_time())
 
@@ -157,7 +158,7 @@ def raid11(): # 刷11章
     [adb_swipe_percent(0.965, 0.578, 0.27, 0.611, sleepn=1) for i in range(2)] # 滑动屏幕
     adb_click_percent(0.078, 0.541, sleepn=2) # 点击11-6
     compare_click('./Target/wqmt/fubensaodang.png', sleepn=2, success="尝试点击连续扫荡")
-    [adb_click_percent(0.712, 0.683, ran=1,) for i in range(5)] # 点击+号
+    [adb_click_percent(0.712, 0.683, ran=1,) for i in range(6)] # 点击+号
     compare_click('./Target/wqmt/fubensaodangkaishi.png', sleepn=12, success="尝试点击开始")
     compare_click('./Target/wqmt/done.png', sleepn=2, success="尝试点击完成")
     topquit()

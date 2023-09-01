@@ -37,7 +37,7 @@ pip install -r requirements.txt
 先打开无期迷途，然后如下启动程序
 
 ```
-python main.py
+start.bat
 ```
 
 Todo:
@@ -48,10 +48,12 @@ Todo:
 
 3. APP启动检测
 
-4. fuben界面检查
+4. 副本界面检查（切换副本第一页、第二页界面）
 
-5. 多个fuben供选择
+5. 多个副本供选择（什么时候我有刷其他本的动力了）
 
 6. 自带ADB ——done
 
 7. OCR识别
+
+8. 兑换采购部商品（每月一次）
