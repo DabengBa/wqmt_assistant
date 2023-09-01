@@ -2,7 +2,7 @@ from utils import *
 
 def topquit():
     put_text("开始：尝试从上方退出潜在弹窗与结算窗口")
-    [adb_click_percent(0.48, 0.03, sleepn=1,ran=1) for i in range(3)]
+    [adb_click_percent(0.47, 0.03, sleepn=1,ran=1) for i in range(3)]
     put_text("完成：尝试从上方退出潜在弹窗与结算窗口")
 def homequit():
     put_text("开始：尝试从home按钮退出")
