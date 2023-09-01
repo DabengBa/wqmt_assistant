@@ -1,2 +1,4 @@
-# 忽略指定目录下的png文件
+# 忽略指定目录下的文件
 ./screenshot.png
+.vscode
+*pycache*
