@@ -3,3 +3,5 @@
 .vscode
 *pycache*
 *.pyc
+screenshot.png
+__pycache__/wqmt.cpython-311.pyc
