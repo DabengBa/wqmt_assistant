@@ -115,6 +115,23 @@ def comparebackxy(targetpic,threshold=0.9): #找图，返回坐标
   put_text(f"寻找{targetpic}, 最大匹配度{max_val:.2f}，坐标{x},{y}")
   return (x, y) if max_val > threshold else None
 
+def test_comparebackxy(targetpic,threshold=0.9):
+  adb_screenshot()
+  img = cv2.imread(local_path, 0)
+  template = cv2.imread(targetpic, 0)  
+  h, w = template.shape[:2]
+  # 限定搜索区域
+  roi_w = img.shape[1] // 2 
+  roi = img[:,roi_w:]
+  # 模板匹配
+  res = cv2.matchTemplate(roi, template, cv2.TM_CCOEFF_NORMED)
+  # 其余逻辑不变
+  _, max_val, _, max_loc = cv2.minMaxLoc(res) 
+  x, y = max_loc[0] + roi_w + w//2, max_loc[1] + h//2
+  return (x, y) if max_val > threshold else None
+
+
+
 def compare_click(targetpic, threshold=0.9, sleepn=0.2, times=1, success="success",fail="fail"):
     center = comparebackxy(targetpic,threshold)
     if center:
