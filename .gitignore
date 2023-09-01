@@ -2,3 +2,4 @@
 ./screenshot.png
 .vscode
 *pycache*
+*.pyc
