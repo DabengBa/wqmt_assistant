@@ -2,7 +2,7 @@ from utils import *
 
 def topquit():
     put_text("开始：尝试从上方退出潜在弹窗与结算窗口")
-    [adb_click_percent(0.47, 0.03, sleepn=1,ran=1) for i in range(3)]
+    [adb_click_percent(0.4, 0.06, sleepn=1,ran=1) for i in range(3)]
     put_text("完成：尝试从上方退出潜在弹窗与结算窗口")
 def homequit():
     put_text("开始：尝试从home按钮退出")
@@ -10,13 +10,33 @@ def homequit():
     adb_screenshot()
     put_text("完成：尝试从home按钮退出")
 
+def wqmtstart(): # 连接设备，失败则报错
+    subprocess.run([adb_path, '-s', devicename, 'shell', 'am', 'start', '-n', 'com.zy.wqmt.cn/com.papegames.gamelib_unity.BaseUnityImplActivity'], 
+            stdout=subprocess.PIPE, 
+            stderr=subprocess.PIPE)
+
+def panelcheck():
+    put_text("开始：检查面板")
+    if comparebackxy('./Target/wqmt/friend1.png',fail="检测到面板未展开，尝试点击展开面板"):
+        pass
+    else:
+        adb_click_percent(0.683, 0.53, sleepn=1) # 展开面板
+    put_text("完成：检查面板")
+
 def starttohome():# 启动到home
     put_text("开始：启动, 检查系统公告"+get_time())
-    center = compare_click('./Target/wqmt/start1.png',sleepn=2, success="发现系统公告")
-    if center:
-        topquit()
-    put_text("点击开始")
-    compare_click('./Target/wqmt/login.png', threshold=0.8, sleepn=4)
+    while True:
+        center = compare_click('./Target/wqmt/login.png', threshold=0.8)
+        if center:
+            put_text("点击开始")
+            break
+        else:
+            put_text("没有找到开始游戏按钮，尝试启动app及检查系统公告")
+            wqmtstart() # 启动无期迷途
+            center = compare_click('./Target/wqmt/start1.png',sleepn=2, success="发现系统公告")
+            if center:
+                topquit()
+            time.sleep(5)
     put_text("等待16秒-->等待游戏完全进入主页面")
     time.sleep(16)
     topquit()
@@ -41,6 +61,7 @@ def starttohome():# 启动到home
 
 def guild():
     put_text("开始：公会收菜"+get_time())
+    panelcheck()
     adb_screenshot()
     adb_click_percent(0.933, 0.365, sleepn=3)
     put_text("进入工会")
@@ -94,6 +115,7 @@ def Bureau():
 
 def friends(): # 朋友
     put_text("开始：拜访朋友"+get_time())
+    panelcheck()
     compare_click('./Target/wqmt/friend1.png', sleepn=2)
     adb_screenshot()
     [adb_click_percent(0.869, 0.855, ran=1, sleepn=1) for i in range(3)]
@@ -102,6 +124,7 @@ def friends(): # 朋友
 
 def construction(): # 基建
     put_text("开始：基建"+get_time())
+    panelcheck()
     adb_click_percent(0.844, 0.629, sleepn=3)
     adb_screenshot()
     put_text("开始收菜")

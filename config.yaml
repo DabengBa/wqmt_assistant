@@ -1,7 +1,7 @@
 default_options:
 - "\u526F\u672C-\u6DF1\u4E95"
-devicename: 127.0.0.1:16384
-devicename2: 127.0.0.1:16416
+devicename1: 127.0.0.1:16384
+devicename: 127.0.0.1:16416
 local_path: ./screenshot.png
 remote_path: /sdcard/screenshot.png
 adb_path: ./tools/adb.exe

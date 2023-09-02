@@ -104,7 +104,7 @@ def adb_screenshot():# 屏幕截图覆盖screenshop.png, 使用DEVNULL避免输�
   put_image(open(local_path, 'rb').read(),width='500px')
 
 #CV
-def comparebackxy(targetpic,threshold=0.9): #找图，返回坐标
+def comparebackxy(targetpic,threshold=0.9, success="", fail=""): #找图，返回坐标
   adb_screenshot()
   img = cv2.imread(local_path, 0) # 屏幕图片
   template = cv2.imread(targetpic, 0) # 寻找目标
@@ -112,19 +112,21 @@ def comparebackxy(targetpic,threshold=0.9): #找图，返回坐标
   res = cv2.matchTemplate(img, template, cv2.TM_CCOEFF_NORMED)# 相关系数匹配方法：cv2.TM_CCOEFF
   _, max_val, _, max_loc = cv2.minMaxLoc(res)
   x, y = max_loc[0] + w // 2, max_loc[1] + h // 2
-  put_text(f"寻找{targetpic}, 最大匹配度{max_val:.2f}，坐标{x},{y}")
-  return (x, y) if max_val > threshold else None
+  if max_val > threshold:
+    put_text(f"找到{targetpic}, 最大匹配度{max_val:.2f}，坐标{x},{y}。 \n{success}", get_time())
+    return (x, y)  
+  else:
+    put_text(f"未找到{targetpic}, 最大匹配度{max_val:.2f}。 \n{fail}", get_time())
+    return None
 
-def compare_click(targetpic, threshold=0.9, sleepn=0.2, times=1, success="success",fail="fail"):
-    center = comparebackxy(targetpic,threshold)
+def compare_click(targetpic, threshold=0.9, sleepn=0.2, times=1, success="", fail=""):
+    center = comparebackxy(targetpic,threshold, success, fail)
     if center:
-        put_text(success,get_time())
         x,y = center
         for _ in range(times):
             adb_click(x, y)
             time.sleep(sleepn)
         return x, y
     else:
-        put_text(fail, get_time())
         time.sleep(sleepn)
         return None
