@@ -3,10 +3,10 @@ from pywebio.output import *
 import yaml
 from utils import *
 from wqmt import *
+import os
 
-with open('config.yaml', 'r', encoding='utf-8') as f:
-  config = yaml.safe_load(f)
-
+current_dir = os.path.dirname(__file__)
+ocr = GetOcrApi(str(os.path.join(current_dir, "tools", "PaddleOCR-json", "PaddleOCR-json.exe")))
 
 
 def select_jobs():
