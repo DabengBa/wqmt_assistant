@@ -23,7 +23,7 @@ def adb_connect():  # 连接设备，失败则报错
     result = adb_run([config.adb_path, 'connect', config.device_name],
                             stdout=PIPE,
                             stderr=PIPE)
-    if str(result.stdout).find('cannot') != -1:
+    if 'cannot' in result.stdout.decode():
         put_text("连接模拟器失败，请见检查congfig.yaml中device_name的配置")
 
 # UI Control
