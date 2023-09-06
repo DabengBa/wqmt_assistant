@@ -1,14 +1,16 @@
 import subprocess
 import numpy as np
 import os
-from utils.PPOCR_api import *
+from PPOCR_api import GetOcrApi
 import time
 import cv2
 from pywebio import *
 from pywebio.input import *
 from pywebio.output import *
 import datetime
+import config
 
+ocr = GetOcrApi(config.ocr_path)
 
 def test_menu():
     options = ['1', '2']
@@ -137,9 +139,7 @@ class Reconize():
         path = os.path.join(config.current_path, "Target", "wqmt", f"{name}.png")
         return path
     
-
-
-    def comparebackxy(self, targetpic='', targettxt='', threshold=0.9):  # 找图，返回坐标
+    def comparebackxy(self, targetpic=None, targettxt=None, threshold=0.8):  # 找图，返回坐标
         self.adb_screenshot()
         if targetpic:
             # targetpic_path = os.path.join(config.current_path, "Target", "wqmt", f"{targetpic}.png")
@@ -154,26 +154,27 @@ class Reconize():
             return (x, y) if max_val > threshold else None
         if targettxt:
             targettxt=str(targettxt)
-            res = ocr.run(config.local_path_ocr)
+            res = ocr.run(config.local_path)
             print(res['data'])
             for data_dict in res['data']:
                 if data_dict['text'] == targettxt:
                     box_data = data_dict['box']  # 获取box数据
                     x = (box_data[0][0] + box_data[2][0]) / 2  # 计算X坐标
                     y = (box_data[0][1] + box_data[2][1]) / 2 # 计算Y坐标
-                    return (x, y) 
+                    return (x, y)
             return None
 
-    def compare_click(self, targetpic='', targettxt='', threshold=0.9, sleepn=0.2, times=1, success="success", fail="fail"):
+    def compare_click(self, targetpic=None, targettxt=None, threshold=0.9, sleepn=0.2, times=1, success="success", fail="fail"):
         center = self.comparebackxy(targetpic, targettxt, threshold)
         if center:
             put_text(success, get_time())
             x, y = center
             for _ in range(times):
-                self.adb_click(x, y)
+                ScreenCtrl().click(x, y)
                 time.sleep(sleepn)
             return x, y
         else:
             put_text(fail, get_time())
             time.sleep(sleepn)
             return None
+        
