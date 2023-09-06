@@ -1,34 +1,15 @@
+from datetime import datetime
+from time import sleep
 import subprocess
 import numpy as np
-import os
-from PPOCR_api import GetOcrApi
-import time
 import cv2
-from pywebio import *
-from pywebio.input import *
-from pywebio.output import *
-import datetime
+from PPOCR_api import GetOcrApi
+from pywebio.output import put_text, put_image
+from os import path
 import config
 
-ocr = GetOcrApi(config.ocr_path)
-
-def test_menu():
-    options = ['1', '2']
-    selected_options = actions("嗯……", options)
-    if "1" in selected_options:
-        morning()
-    if "2" in selected_options:
-        night()
-    test_menu()  # 递归调用主菜单函数，以实现循环显示菜单
-
 def get_time():
-    """
-    des:
-        获取当前时间，例如 "2023-08-30 08:03:02"
-    使用方法：
-        put_text("开始"，get_time()）
-    """
-    time_stamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    time_stamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     return time_stamp
 
 # ADB
@@ -46,135 +27,131 @@ def adb_connect():  # 连接设备，失败则报错
         put_text("连接模拟器失败，请见检查congfig.yaml中device_name的配置")
 
 # UI Control
-class RandomCoords():
-    def __init__(self):
-        pass
+def gen_ran_xy(x, y, xx=0, yy=0):
+    """  
+    根据xy数值，在一个15px的区间内生成新的正态分布数值，如果超过15px则重新生成
+    """
+    while True:
+        mx = np.round(np.random.choice(np.random.normal(loc=x, scale=7, size=15)), decimals=2)
+        my = np.round(np.random.choice(np.random.normal(loc=y, scale=7, size=15)), decimals=2)
+        mxx = np.round(np.random.choice(np.random.normal(loc=xx, scale=7, size=15)), decimals=2)
+        myy = np.round(np.random.choice(np.random.normal(loc=yy, scale=7, size=15)), decimals=2)
+        
+        if all([
+        x - 15 < mx < x + 15,
+        y - 15 < my < y + 15,
+        xx - 15 < mxx < xx + 15,
+        yy - 15 < myy < yy + 15,
+        mx > 0,
+        my > 0,
+        mxx > 0,
+        myy > 0
+        ]):
+            return mx, my, mxx, myy
 
-    def xy(self, x, y, xx=0, yy=0):
-        """  
-        根据xy数值，在一个15px的区间内生成新的正态分布数值，如果超过15px则重新生成
-        """
-        while True:
-            mx = np.round(np.random.choice(np.random.normal(
-                loc=x, scale=7, size=15)), decimals=2)
-            my = np.round(np.random.choice(np.random.normal(
-                loc=y, scale=7, size=15)), decimals=2)
-            mxx = np.round(np.random.choice(np.random.normal(
-                loc=xx, scale=7, size=15)), decimals=2)
-            myy = np.round(np.random.choice(np.random.normal(
-                loc=yy, scale=7, size=15)), decimals=2)
-            if x-15 < mx < x+15 and y-15 < my < y+15 and xx-15 < mxx < xx+15 and yy-15 < myy < yy+15:
-                return mx, my, mxx, myy
+def gen_ran_time(time=None):
+    if time is None:
+        time = config.sleep_time
+    while True:
+        mtime = np.round(np.random.choice(np.random.normal(
+            loc=time, scale=time*0.3, size=15)), decimals=2)
 
-    def time(self, sleep_time):
-        """  
-        根据sleep_time数值，在一个+30%的区间内生成新的正态分布数值，新数值要求在100%-130%之间
-        """
-        if sleep_time is None:
-            sleep_time = config.sleep_time
-        while True:
-            mtime = np.round(np.random.choice(np.random.normal(
-                loc=sleep_time, scale=sleep_time*0.3, size=15)), decimals=2)
+        if time < mtime < time*1.3:
+            random_float = np.random.random()
+            if random_float > 0.8: # 有20%几率额外增加1s延迟
+                mtime = mtime+1
+            return mtime
 
-            if sleep_time < mtime < sleep_time*1.3:
-                random_float = np.random.random()
-                if random_float > 0.8:
-                    mtime = mtime+1
-                return mtime
+def swipe_screen( x, y, xx, yy, sleep_time=None):
+    if sleep_time is None:
+        sleep_time = config.sleep_time
+    if x < 1:
+        x, y, xx, yy = trans_percent_to_xy(x, y, xx, yy)
+    x, y, xx, yy = gen_ran_xy(x, y, xx, yy)
+    swipe_coords = list(map(str, [x, y, xx, yy]))
+    time_gap = gen_ran_time(sleep_time)
+    subprocess.run(["adb", "-s", config.device_name,
+                    "shell", "input", "touchscreen", "swipe"] + swipe_coords)
+    # put_text(f"滑动坐标{swipe_coords}，将休息{time_gap}秒，{get_time()}")
+    sleep(time_gap)
 
-class ScreenCtrl():
-    def __init__(self):
-        pass
-
-    def swipe(self, x, y, xx, yy, sleep_time=None):
-        if sleep_time is None:
-            sleep_time = config.sleep_time
-        if x < 1:
-            x, y, xx, yy = self.percent(x, y, xx, yy)
-        x, y, xx, yy = RandomCoords().xy(x, y, xx, yy)
-        swipe_coords = list(map(str, [x, y, xx, yy]))
-        time_gap = RandomCoords().time(sleep_time)
-        subprocess.run(["adb", "-s", config.device_name,
-                        "shell", "input", "touchscreen", "swipe"] + swipe_coords)
-        put_text(f"滑动坐标{swipe_coords}，将休息{time_gap}秒，{get_time()}")
-        time.sleep(time_gap)
-
-    def click(self, x, y, sleep_time=None):
-        if sleep_time is None:
-            sleep_time = config.sleep_time
-        if x < 1:
-            Codi = self.percent(x, y)
-            x = Codi[0]
-            y = Codi[1]
-        Codi = RandomCoords().xy(x, y)
+def click_screen( x, y, sleep_time=None):
+    if sleep_time is None:
+        sleep_time = config.sleep_time
+    if x < 1:
+        Codi = trans_percent_to_xy(x, y)
         x = Codi[0]
         y = Codi[1]
-        click_coords = list(map(str, [x, y]))
-        time_gap = RandomCoords().time(sleep_time)
-        subprocess.run([config.adb_path, "-s", config.device_name, "shell",
-                       "input", "tap"] + click_coords)
-        put_text(f"点击坐标{click_coords}，将休息{time_gap}秒，{get_time()}")
-        time.sleep(time_gap)
+    Codi = gen_ran_xy(x, y)
+    x = Codi[0]
+    y = Codi[1]
+    click_coords = list(map(str, [x, y]))
+    time_gap = gen_ran_time(sleep_time)
+    subprocess.run([config.adb_path, "-s", config.device_name, "shell",
+                    "input", "tap"] + click_coords)
+    # put_text(f"点击坐标{click_coords}，将休息{time_gap}秒，{get_time()}")
+    sleep(time_gap)
 
-    def percent(self, x, y, xx=0, yy=0):
-        x = round(config.width * x, 2)
-        y = round(config.height * y, 2)
-        xx = round(config.width * xx, 2)
-        yy = round(config.height * yy, 2)
-        return x, y, xx, yy
+def trans_percent_to_xy( x, y, xx=0, yy=0):
+    x = round(config.width * x, 2)
+    y = round(config.height * y, 2)
+    xx = round(config.width * xx, 2)
+    yy = round(config.height * yy, 2)
+    return x, y, xx, yy
 
-# CV
-class Reconize():
-    def __init__(self):
-        pass
+# Recognize
+def get_screenshot():  # 屏幕截图覆盖screenshop.png, 使用DEVNULL避免输出命令行
+    subprocess.run([config.adb_path, '-s', config.device_name, 'shell', 'screencap',
+                config.remote_path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    subprocess.run([config.adb_path, '-s', config.device_name, 'pull', config.remote_path,
+                config.local_path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    put_image(open(config.local_path, 'rb').read(), width='500px')
 
-    def adb_screenshot(self):  # 屏幕截图覆盖screenshop.png, 使用DEVNULL避免输出命令行
-        subprocess.run([config.adb_path, '-s', config.device_name, 'shell', 'screencap',
-                    config.remote_path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        subprocess.run([config.adb_path, '-s', config.device_name, 'pull', config.remote_path,
-                    config.local_path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        put_image(open(config.local_path, 'rb').read(), width='500px')
+def trans_pic_path(name):
+    pic_path = path.join(config.current_path, "Target", "wqmt", f"{name}.png")
+    return pic_path
 
-    def pic_path(name):
-        path = os.path.join(config.current_path, "Target", "wqmt", f"{name}.png")
-        return path
-    
-    def comparebackxy(self, targetpic=None, targettxt=None, threshold=0.8):  # 找图，返回坐标
-        self.adb_screenshot()
-        if targetpic:
-            # targetpic_path = os.path.join(config.current_path, "Target", "wqmt", f"{targetpic}.png")
-            targetpic_path = self.pic_path(targetpic)
-            img = cv2.imread(config.local_path, 0)  # 屏幕图片
-            template = cv2.imread(targetpic_path, 0)  # 寻找目标
-            h, w = template.shape[:2]
-            res = cv2.matchTemplate(img, template, cv2.TM_CCOEFF_NORMED) # 相关系数匹配方法：cv2.TM_CCOEFF
-            _, max_val, _, max_loc = cv2.minMaxLoc(res)
-            x, y = max_loc[0] + w // 2, max_loc[1] + h // 2
-            put_text(f"寻找{targetpic}, 最大匹配度{max_val:.2f}，坐标{x},{y}")
-            return (x, y) if max_val > threshold else None
-        if targettxt:
-            targettxt=str(targettxt)
-            res = ocr.run(config.local_path)
-            print(res['data'])
-            for data_dict in res['data']:
-                if data_dict['text'] == targettxt:
-                    box_data = data_dict['box']  # 获取box数据
-                    x = (box_data[0][0] + box_data[2][0]) / 2  # 计算X坐标
-                    y = (box_data[0][1] + box_data[2][1]) / 2 # 计算Y坐标
-                    return (x, y)
-            return None
-
-    def compare_click(self, targetpic=None, targettxt=None, threshold=0.9, sleepn=0.2, times=1, success="success", fail="fail"):
-        center = self.comparebackxy(targetpic, targettxt, threshold)
-        if center:
-            put_text(success, get_time())
-            x, y = center
-            for _ in range(times):
-                ScreenCtrl().click(x, y)
-                time.sleep(sleepn)
-            return x, y
+def comparebackxy(target_pic='', target_txt='', threshold=0.8):  # 找图，返回坐标
+    get_screenshot()
+    if target_pic:
+        target_pic_path = trans_pic_path(target_pic)
+        img = cv2.imread(config.local_path, 0)  # 屏幕图片
+        template = cv2.imread(target_pic_path, 0)  # 寻找目标
+        h, w = template.shape[:2]
+        res = cv2.matchTemplate(img, template, cv2.TM_CCOEFF_NORMED) # 相关系数匹配方法：cv2.TM_CCOEFF
+        _, max_val, _, max_loc = cv2.minMaxLoc(res)
+        x, y = max_loc[0] + w // 2, max_loc[1] + h // 2
+        if max_val > threshold:
+            return (x, y)  
         else:
-            put_text(fail, get_time())
-            time.sleep(sleepn)
             return None
+    if target_txt:
+        ocr = GetOcrApi(config.ocr_path) # PaddleOCR API
+        res = ocr.run(config.local_path)
+        print(res['data'])
+        for data_dict in res['data']:
+            if data_dict['text'] == target_txt:
+                box_data = data_dict['box']  # 获取box数据
+                x = (box_data[0][0] + box_data[2][0]) / 2  # 计算X坐标
+                y = (box_data[0][1] + box_data[2][1]) / 2 # 计算Y坐标
+                return (x, y)
+        return None
+
+def compare_click( target_pic='', target_txt='', threshold=0.8, sleep_time=None, times=1, 
+                  success="success", fail="fail"):
+    center = comparebackxy(target_pic, target_txt, threshold)
+    if sleep_time is None:
+        sleep_time = config.sleep_time
+    if center:
+        x, y = center
+        click_coords = list(map(str, [x, y]))
+        put_text(f"{success}, 找到 {target_pic}{target_txt}，坐标{click_coords}, {get_time()}")
+        for _ in range(times): # 在图片位置重复点击，用于收菜之后再确认一下
+            click_screen(x, y)
+            sleep(sleep_time)
+        return x, y
+    else:
+        put_text(f"{fail}, 没找到 {target_pic}{target_txt}, {get_time()}")
+        sleep(sleep_time)
+        return None
         
