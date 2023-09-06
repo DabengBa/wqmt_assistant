@@ -10,7 +10,7 @@ def homequit():
     put_text("完成：尝试从home按钮退出")
 
 def wqmtstart(): # 连接设备，失败则报错
-    adb_run([config.adb_path, '-s', config.devicename, 'shell', 'am', 'start', '-n', 'com.zy.wqmt.cn/com.papegames.gamelib_unity.BaseUnityImplActivity'], 
+    adb_run([utils.config.adb_path, '-s', config.devicename, 'shell', 'am', 'start', '-n', 'com.zy.wqmt.cn/com.papegames.gamelib_unity.BaseUnityImplActivity'], 
             stdout=PIPE, 
             stderr=PIPE)
 

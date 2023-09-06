@@ -1,17 +1,20 @@
-
-from subprocess import run as adb_run, DEVNULL, PIPE
-from pywebio.input import *
-from ..wqmt import *
+#Ori
+from os import path
 from datetime import datetime
 from time import sleep
+#Pip
+from subprocess import run as adb_run, DEVNULL, PIPE
+from pywebio.output import put_text, put_image
+from pywebio.input import checkbox
 from numpy import round, random
 import cv2
-from utils.PPOCR_api import GetOcrApi
-from utils.functions import *
-from pywebio.output import put_text, put_image
-from os import path
-import config
 from ruamel.yaml import YAML
+#Private
+from .PPOCR_api import GetOcrApi
+from .wqmt import *
+from .config import *
+
+
 
 
 def get_time():
@@ -22,21 +25,22 @@ def select_jobs():
     options = [
         '启动', '签到', '公会','邮件','采购中心-每日免费体力','基建收菜','管理局','好友','副本-锈河记忆','副本-11-6','副本-深井'
         ]
-    selected_options = checkbox("Selection", options=options, value=config.default_options)
-    config.default_options = selected_options
-    with open(config.current_path + 'config.yaml', 'w') as f:
-        YAML.dump(config, f)
+    selected_options = checkbox("Selection", options=options) # value=saved_selections
+    saved_selections = selected_options
+    with open(path.join(main_path, 'config.yaml'), 'w', encoding='utf-8') as f:
+        yaml = YAML()
+        yaml.dump(config, f)
     return selected_options
 
 # ADB
 # Connection
 def adb_disconnect():  # 断开设备
-    adb_run([config.adb_path, 'disconnect', config.device_name],
+    adb_run([adb_path, 'disconnect', device_name],
                    stdout=DEVNULL,
                    stderr=DEVNULL)
 
 def adb_connect():  # 连接设备，失败则报错
-    result = adb_run([config.adb_path, 'connect', config.device_name],
+    result = adb_run([adb_path, 'connect', device_name],
                             stdout=PIPE,
                             stderr=PIPE)
     if 'cannot' in result.stdout.decode():
@@ -65,7 +69,7 @@ def gen_ran_xy(x, y, xx=0, yy=0):
 
 def gen_ran_time(time=None):
     if time is None:
-        time = config.sleep_time
+        time = sleep_time
     while True:
         mtime = round(random.choice(random.normal(
             loc=time, scale=time*0.3, size=15)), decimals=2)
@@ -79,7 +83,7 @@ def gen_ran_time(time=None):
 def swipe_screen( x, y, xx, yy, sleep_time=None):
 
     if sleep_time is None:
-        sleep_time = config.sleep_time
+        sleep_time = sleep_time
 
     if x < 1:
         x, y, xx, yy = trans_percent_to_xy(x, y, xx, yy)
@@ -88,7 +92,7 @@ def swipe_screen( x, y, xx, yy, sleep_time=None):
     swipe_coords = [str(coord) for coord in [x, y, xx, yy]]
     time_gap = gen_ran_time(sleep_time)
 
-    adb_run(["adb", "-s", config.device_name,
+    adb_run(["adb", "-s", device_name,
                     "shell", "input", "touchscreen", "swipe"] + swipe_coords)
     # put_text(f"滑动坐标{swipe_coords}，将休息{time_gap}秒，{get_time()}")
     sleep(time_gap)
@@ -108,7 +112,7 @@ def click_screen( x, y, sleep_time=None):
     """
 
     if sleep_time is None:
-        sleep_time = config.sleep_time
+        sleep_time = sleep_time
 
     if x < 1:
         x, y = trans_percent_to_xy(x, y)
@@ -117,28 +121,28 @@ def click_screen( x, y, sleep_time=None):
     click_coords = [str(coord) for coord in [x, y]]
     time_gap = gen_ran_time(sleep_time)
 
-    adb_run([config.adb_path, "-s", config.device_name, "shell",
+    adb_run([adb_path, "-s", device_name, "shell",
                     "input", "tap"] + click_coords)
     # put_text(f"点击坐标{click_coords}，将休息{time_gap}秒，{get_time()}")
     sleep(time_gap)
 
 def trans_percent_to_xy( x, y, xx=0, yy=0):
-    x = round(config.width * x, 2)
-    y = round(config.height * y, 2)
-    xx = round(config.width * xx, 2)
-    yy = round(config.height * yy, 2)
+    x = round(width * x, 2)
+    y = round(height * y, 2)
+    xx = round(width * xx, 2)
+    yy = round(height * yy, 2)
     return (x, y, xx, yy)
 
 # Recognize
 def get_screenshot():  # 屏幕截图覆盖screenshop.png, 使用DEVNULL避免输出命令行
-    adb_run([config.adb_path, '-s', config.device_name, 'shell', 'screencap',
-                config.remote_path], stdout=DEVNULL, stderr=DEVNULL)
-    adb_run([config.adb_path, '-s', config.device_name, 'pull', config.remote_path,
-                config.local_path], stdout=DEVNULL, stderr=DEVNULL)
-    put_image(open(config.local_path, 'rb').read(), width='500px')
+    adb_run([adb_path, '-s', device_name, 'shell', 'screencap',
+                remote_path], stdout=DEVNULL, stderr=DEVNULL)
+    adb_run([adb_path, '-s', device_name, 'pull', remote_path,
+                local_path], stdout=DEVNULL, stderr=DEVNULL)
+    put_image(open(local_path, 'rb').read(), width='500px')
 
 def trans_pic_path(name):
-    pic_path = path.join(config.current_path, "Target", "wqmt", f"{name}.png")
+    pic_path = path.join(main_path, "Target", "wqmt", f"{name}.png")
     return pic_path
 
 def comparebackxy(target_pic='', target_txt='', threshold=0.8):  # 找图，返回坐标
@@ -147,7 +151,7 @@ def comparebackxy(target_pic='', target_txt='', threshold=0.8):  # 找图，返�
 
     if target_pic:
         target_pic_path = trans_pic_path(target_pic)
-        img = cv2.imread(config.local_path, 0)  # 屏幕图片
+        img = cv2.imread(local_path, 0)  # 屏幕图片
         template = cv2.imread(target_pic_path, 0)  # 寻找目标
         res = cv2.matchTemplate(img, template, cv2.TM_CCOEFF_NORMED) # 相关系数匹配方法：cv2.TM_CCOEFF
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
@@ -158,8 +162,8 @@ def comparebackxy(target_pic='', target_txt='', threshold=0.8):  # 找图，返�
             return None
         
     if target_txt:
-        ocr = GetOcrApi(config.ocr_path) # PaddleOCR API
-        res = ocr.run(config.local_path)
+        ocr = GetOcrApi(ocr_path) # PaddleOCR API
+        res = ocr.run(local_path)
         for data_dict in res['data']:
             if data_dict['text'] == target_txt:
                 box_data = data_dict['box']  # 获取box数据
@@ -174,7 +178,7 @@ def compare_click( target_pic='', target_txt='', threshold=0.8, sleep_time=None,
     center = comparebackxy(target_pic, target_txt, threshold)
 
     if sleep_time is None:
-        sleep_time = config.sleep_time
+        sleep_time = sleep_time
 
     if center:
         x, y = center

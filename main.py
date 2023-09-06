@@ -1,12 +1,10 @@
-from pywebio.output import put_text
+from utils import *
 from pywebio.input import actions
-from utils.functions import *
-from wqmt import *
+
+
 
 if __name__ == '__main__':
-
     [put_text(" ") for i in range(5)]
-
     adb_connect()
     put_text("请提前在Config.yaml中配置好mumu的ip地址和端口")
     put_text("建议按照12小时间隔，早晚各一次。晚上执行的时候请在17点之后，以便领取体力")
