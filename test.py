@@ -2,6 +2,7 @@ from debug import *
 import config
 import time
 
+
 def topquit():
     put_text("开始：尝试从上方退出潜在弹窗与结算窗口")
     [click_screen(0.4, 0.06, sleep_time=1) for i in range(3)]
@@ -12,9 +13,9 @@ def homequit():
     put_text("完成：尝试从home按钮退出")
 
 def wqmtstart(): # 连接设备，失败则报错
-    subprocess.run([config.adb_path, '-s', config.devicename, 'shell', 'am', 'start', '-n', 'com.zy.wqmt.cn/com.papegames.gamelib_unity.BaseUnityImplActivity'], 
-            stdout=subprocess.PIPE, 
-            stderr=subprocess.PIPE)
+    adb_run([config.adb_path, '-s', config.devicename, 'shell', 'am', 'start', '-n', 'com.zy.wqmt.cn/com.papegames.gamelib_unity.BaseUnityImplActivity'], 
+            stdout=PIPE, 
+            stderr=PIPE)
 
 def panelcheck():
     put_text("开始：检查面板")
