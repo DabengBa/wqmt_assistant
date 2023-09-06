@@ -1,24 +1,13 @@
-from pywebio.input import *
-from pywebio.output import *
-import yaml
-from utils import *
+from pywebio.output import put_text
+from pywebio.input import actions
+from utils.functions import *
 from wqmt import *
-import os
-
-current_dir = os.path.dirname(__file__)
-
-def select_jobs():
-    options = ['启动', '签到', '公会','邮件','采购中心-每日免费体力','基建收菜','管理局','好友','副本-锈河记忆','副本-11-6','副本-深井']
-    default_value = config['default_options']
-    selected_options = checkbox("Selection", options=options, value=default_value)
-    config['default_options'] = selected_options
-    with open('config.yaml', 'w') as f:
-        yaml.dump(config, f)
-    return selected_options
 
 if __name__ == '__main__':
-    adb_connect()
+
     [put_text(" ") for i in range(5)]
+
+    adb_connect()
     put_text("请提前在Config.yaml中配置好mumu的ip地址和端口")
     put_text("建议按照12小时间隔，早晚各一次。晚上执行的时候请在17点之后，以便领取体力")
 

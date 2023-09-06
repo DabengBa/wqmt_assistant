@@ -1,16 +1,32 @@
+
+from subprocess import run as adb_run, DEVNULL, PIPE
+from pywebio.input import *
+from ..wqmt import *
 from datetime import datetime
 from time import sleep
-from subprocess import run as adb_run, DEVNULL, PIPE
 from numpy import round, random
 import cv2
-from PPOCR_api import GetOcrApi
+from utils.PPOCR_api import GetOcrApi
+from utils.functions import *
 from pywebio.output import put_text, put_image
 from os import path
 import config
+from ruamel.yaml import YAML
+
 
 def get_time():
     time_stamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     return time_stamp
+
+def select_jobs():
+    options = [
+        '启动', '签到', '公会','邮件','采购中心-每日免费体力','基建收菜','管理局','好友','副本-锈河记忆','副本-11-6','副本-深井'
+        ]
+    selected_options = checkbox("Selection", options=options, value=config.default_options)
+    config.default_options = selected_options
+    with open(config.current_path + 'config.yaml', 'w') as f:
+        YAML.dump(config, f)
+    return selected_options
 
 # ADB
 # Connection

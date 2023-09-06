@@ -1,7 +1,4 @@
-from debug import *
-import config
-import time
-
+from utils.functions import *
 
 def topquit():
     put_text("开始：尝试从上方退出潜在弹窗与结算窗口")
@@ -39,9 +36,9 @@ def starttohome():# 启动到home
             center = compare_click(target_pic='start1.png',sleep_time=2, success="发现系统公告")
             if center:
                 click_screen(0.97,0.5) # 点击右侧边缘退出公告
-            time.sleep(4) # 等待后检查“开始游戏”
+            sleep(4) # 等待后检查“开始游戏”
     put_text("等待16秒-->等待游戏完全进入主页面")
-    time.sleep(16)
+    sleep(16)
     topquit()
 
     while True:
