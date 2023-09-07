@@ -9,4 +9,5 @@ device_name2: 127.0.0.1:16416
 
 # 程序自动配置, 勿动
 current_path: C:\Software\DEV\wqmt_assistant
-saved_selections: 启动
+saved_selections:
+- 启动

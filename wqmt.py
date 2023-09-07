@@ -1,5 +1,6 @@
 from pywebio.output import put_text
-from .functions import *
+from utils.functions import *
+import utils.config  as cfg
 
 def topquit():
     put_text("开始：尝试从上方退出潜在弹窗与结算窗口")
@@ -11,7 +12,7 @@ def homequit():
     put_text("完成：尝试从home按钮退出")
 
 def wqmtstart(): # 连接设备，失败则报错
-    adb_run([config.adb_path, '-s', config.devicename, 'shell', 'am', 'start', '-n', 'com.zy.wqmt.cn/com.papegames.gamelib_unity.BaseUnityImplActivity'], 
+    adb_run([cfg.adb_path, '-s', cfg.devicename, 'shell', 'am', 'start', '-n', 'com.zy.wqmt.cn/com.papegames.gamelib_unity.BaseUnityImplActivity'], 
             stdout=PIPE, 
             stderr=PIPE)
 
@@ -57,7 +58,7 @@ def starttohome():# 启动到home
             topquit()
 
     click_screen(0.683, 0.53, sleep_time=1) # 展开面板 - 需要替换 面板展开()
-    get_screenshot()
+    adb_get_screenshot()
     put_text("完成：启动, 检查系统公告"+get_time())
 
 def guild():
@@ -65,7 +66,7 @@ def guild():
     panelcheck()
     click_screen(0.933, 0.365, sleep_time=3)
     put_text("进入工会")
-    get_screenshot()
+    adb_get_screenshot()
     [click_screen(0.513, 0.028, sleep_time=1) for i in range(2)]
     put_text("开始捐赠")
     click_screen(0.374, 0.69, sleep_time=2) 
@@ -76,7 +77,7 @@ def guild():
 
 def dailycheckin():
     put_text("开始：Check-in"+get_time())
-    get_screenshot()
+    adb_get_screenshot()
     click_screen(0.825, 0.15, sleep_time=2)
     put_text("尝试完成对话")
     [click_screen(0.807, 0.64) for i in range(10)]
@@ -87,18 +88,18 @@ def dailycheckin():
         click_screen(0.67, 0.75)
         click_screen(0.79, 0.76)
     put_text("完成对话和礼物收取")
-    get_screenshot()
+    adb_get_screenshot()
     topquit()
-    get_screenshot()
+    adb_get_screenshot()
     put_text("完成：Check-in"+get_time())
 
 def getmail():
     put_text("开始：收邮件"+get_time())
-    get_screenshot()
+    adb_get_screenshot()
     click_screen(0.958, 0.146, sleep_time=2)
     [click_screen(0.263, 0.942, sleep_time=1) for i in range(4)]
     homequit()
-    get_screenshot()
+    adb_get_screenshot()
     put_text("完成：收邮件"+get_time())
 
 def Bureau():
@@ -109,13 +110,13 @@ def Bureau():
     [click_screen(0.143, 0.456,sleep_time=3) for i in range(2)]
     [compare_click(target_pic='lingqu.png', sleep_time=3, times=2) for i in range(2)]
 
-    get_screenshot()
+    adb_get_screenshot()
     put_text("完成收取体力")
 
     topquit()
 
     put_text("尝试派遣")
-    get_screenshot()
+    adb_get_screenshot()
     click_screen(0.44, 0.742,sleep_time=2)
     [click_screen(0.105, 0.707, sleep_time=3) for i in range(4)]
     put_text("完成派遣")
@@ -126,7 +127,7 @@ def friends(): # 朋友
     put_text("开始：拜访朋友"+get_time())
     panelcheck()
     compare_click(target_pic='friend1.png', sleep_time=2)
-    get_screenshot()
+    adb_get_screenshot()
     [click_screen(0.869, 0.855, sleep_time=1) for i in range(3)]
     homequit()
     put_text("完成：朋友拜访"+get_time())
@@ -135,7 +136,7 @@ def construction(): # 基建
     put_text("开始：基建"+get_time())
     panelcheck()
     click_screen(0.844, 0.629, sleep_time=3)
-    get_screenshot()
+    adb_get_screenshot()
     put_text("开始收菜")
     [click_screen(0.096, 0.373,sleep_time=2) for i in range(3)] # 收菜
     put_text("开始聊天")
@@ -151,11 +152,11 @@ def purchase(): # 采购办领免费体力
     click_screen(0.091, 0.41, sleep_time=2)
     [swipe_screen(0.965, 0.578, 0.27, 0.611, sleep_time=1) for i in range(3)]
     put_text("准备打开礼包")
-    get_screenshot()
+    adb_get_screenshot()
     click_screen(0.587, 0.88, sleep_time=2) # 收每日体力
-    get_screenshot()
+    adb_get_screenshot()
     click_screen(0.766, 0.733, sleep_time=2) # 确认
-    get_screenshot()
+    adb_get_screenshot()
     topquit()
     homequit()
     put_text("结束：采购办领体力"+get_time())
@@ -163,13 +164,13 @@ def purchase(): # 采购办领免费体力
 def raidriver(): # 锈河
     put_text("开始：锈河副本"+get_time())
     compare_click(target_pic='fuben1.png', sleep_time=4, success="尝试打开副本界面")
-    get_screenshot()
+    adb_get_screenshot()
 
     put_text("尝试切换到锈河")
     click_screen(0.17, 0.92, sleep_time=3)
 
     compare_click(target_pic='fuben2.png', sleep_time=2, success="尝试打开记忆风暴") 
-    get_screenshot()
+    adb_get_screenshot()
     click_screen(0.835, 0.682, sleep_time=2)
 
     compare_click(target_pic='fubensaodang.png', sleep_time=2, success="尝试点击连续扫荡") 
