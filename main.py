@@ -3,8 +3,6 @@ import wqmt as wq
 from pywebio.input import actions
 import utils.log as log
 
-log.write_log("启动")
-
 if __name__ == '__main__':
     [put_text(" ") for i in range(5)]
     adb_connect()

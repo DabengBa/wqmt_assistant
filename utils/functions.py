@@ -66,26 +66,24 @@ def adb_get_screenshot():  # 屏幕截图覆盖screenshop.png, 使用DEVNULL避�
 
 
 def gen_ran_xy(x, y, xx=0, yy=0):
-    # 根据xy数值，在一个15px的区间内生成新的正态分布数值，如果超过15px则重新生成
-    while True:
-        mx = round(rd.normalvariate(x, 7), 2)
-        my = round(rd.normalvariate(y, 7), 2)
-        mxx = round(rd.normalvariate(xx, 7), 2)
-        myy = round(rd.normalvariate(yy, 7), 2)
+  # 根据xy数值，在一个15px的区间内生成新的正态分布数值，如果超过15px则重新生成
+  
+  # 确定需要生成的随机数的个数
+  num_coords = 2 if xx == 0 else 4
 
-        if all([
-            abs(x - mx) <= 15,
-            abs(y - my) <= 15,
-            abs(xx - mxx) <= 15,
-            abs(yy - myy) <= 15,
-            mx > 0,
-            my > 0,
-            mxx > 0,
-            myy > 0
-        ]):
-            log.write_log(f"生成随机数 {x} {y} {xx} {yy}")
-            return (mx, my, mxx, myy)
+  while True:
+    # 生成均值为x和y的正态分布随机数
+    coords = [round(rd.normalvariate(coord, 7), 2) for coord in [x, y]]
 
+    if xx != 0:
+      # 生成均值为xx和yy的正态分布随机数
+      coords.extend([round(rd.normalvariate(coord, 7), 2) for coord in [xx, yy]])
+
+    if all(abs(coord_1 - coord_2) <= 15 for coord_1, coord_2 in zip([x, y, xx, yy], coords)) and all(coord > 0 for coord in coords):
+      break
+
+  log.write_log(f"生成随机数 {' '.join(map(str, coords))}")
+  return tuple(coords)
 
 def gen_ran_time(time=None):
     if time is None:
@@ -103,7 +101,7 @@ def gen_ran_time(time=None):
 def swipe_screen(x, y, xx, yy, sleep_time=None):
 
     if sleep_time is None:
-        sleep_time = sleep_time
+        sleep_time = cfg.sleep_time
 
     if x < 1:
         x, y, xx, yy = trans_percent_to_xy(x, y, xx, yy)
@@ -134,7 +132,7 @@ def click_screen(x, y, sleep_time=None):
     """
 
     if sleep_time is None:
-        sleep_time = sleep_time
+        sleep_time = cfg.sleep_time
 
     if x < 1:
         x, y = trans_percent_to_xy(x, y)
@@ -155,18 +153,23 @@ def trans_percent_to_xy(x, y, xx=0, yy=0):
     y = round(cfg.height * y, 2)
     xx = round(cfg.width * xx, 2)
     yy = round(cfg.height * yy, 2)
-    log.write_log(f"根据百分比转换 {x} {y} {xx} {yy}")
-    return (x, y, xx, yy)
+    if xx == 0:
+        coord = (x, y)
+        log.write_log(f"根据百分比转换 {x} {y}")
+    else:
+        coord = (x, y, xx, yy)
+        log.write_log(f"根据百分比转换 {x} {y} {xx} {yy}")
+    return coord
 
 # Recognize
 
-
+#! 减少变量，把类似wqmt这种放进config
 def trans_pic_path(name):
     pic_path = path.join(cfg.main_path, "Target", "wqmt", f"{name}.png")
     return pic_path
 
 
-def comparebackxy(target_pic='', target_txt='', threshold=0.8):  # 找图，返回坐标
+def comparebackxy(target_pic='', target_txt='', threshold=0.8, success='success', fail='fail'):  # 找图，返回坐标
 
     adb_get_screenshot()
     local_path = cfg.local_path
@@ -183,14 +186,14 @@ def comparebackxy(target_pic='', target_txt='', threshold=0.8):  # 找图，返�
         x, y = max_loc[0] + template.shape[1] // 2, max_loc[1] + \
             template.shape[0] // 2
         if max_val > threshold:
-            log.write_log(f"根据图像匹配结果返回 {x} {y}")
+            log.write_log(f"{success}, 根据图像匹配结果返回 {x} {y}")
             return (x, y)
         else:
-            log.write_log(f"图像匹配失败 {target_pic}")
+            log.write_log(f"{fail}, 图像匹配失败 {target_pic}")
             return None
 
     if target_txt:
-        log.write_log(f"开始文字匹配 {target_txt}}")
+        log.write_log(f"开始文字匹配 {target_txt}")
         ocr = GetOcrApi(ocr_path)  # PaddleOCR API
         res = ocr.run(local_path)
         for data_dict in res['data']:
@@ -211,7 +214,7 @@ def compare_click(target_pic='', target_txt='', threshold=0.8, sleep_time=None, 
     center = comparebackxy(target_pic, target_txt, threshold)
 
     if sleep_time is None:
-        sleep_time = sleep_time
+        sleep_time = cfg.sleep_time
 
     if center:
         x, y = center
