@@ -1,6 +1,9 @@
 from utils.functions import *
 import wqmt as wq
 from pywebio.input import actions
+import utils.log as log
+
+log.write_log("启动")
 
 if __name__ == '__main__':
     [put_text(" ") for i in range(5)]
@@ -10,6 +13,7 @@ if __name__ == '__main__':
     put_text("建议按照12小时间隔，早晚各一次。晚上执行的时候请在17点之后，以便领取体力")
 
     options = ['早一次', '晚一次', '自选']
+    log.write_log("打开options界面")
     selected_options = actions("嗯……", options)
     if "早一次" in selected_options:
         wq.morning()
@@ -18,6 +22,7 @@ if __name__ == '__main__':
         wq.night()
         put_text("完成所有任务")
     if "自选" in selected_options:
+        log.write_log("打开自选界面")
         agree = select_jobs()
         if "启动" in agree:
             wq.starttohome()

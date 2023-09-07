@@ -12,6 +12,7 @@ from ruamel.yaml import YAML
 # Private
 from .PPOCR_api import GetOcrApi
 import utils.config as cfg
+import utils.log as log
 
 
 def get_time():
@@ -48,6 +49,9 @@ def adb_connect():  # 连接设备，失败则报错
                      stderr=PIPE)
     if 'cannot' in result.stdout.decode():
         put_text("连接模拟器失败，请见检查congfig.yaml中device_name的配置")
+    else:
+        put_text("连接模拟器成功"+" "+get_time())
+        log.write_log(f"连接模拟器成功")
 
 
 def adb_get_screenshot():  # 屏幕截图覆盖screenshop.png, 使用DEVNULL避免输出命令行
@@ -56,6 +60,7 @@ def adb_get_screenshot():  # 屏幕截图覆盖screenshop.png, 使用DEVNULL避�
     adb_run([cfg.adb_path, '-s', cfg.device_name, 'pull', cfg.remote_path,
              cfg.local_path], stdout=DEVNULL, stderr=DEVNULL)
     put_image(open(cfg.local_path, 'rb').read(), width='500px')
+    log.write_log(f"屏幕截图")
 
 # UI Control
 
@@ -78,6 +83,7 @@ def gen_ran_xy(x, y, xx=0, yy=0):
             mxx > 0,
             myy > 0
         ]):
+            log.write_log(f"生成随机数 {x} {y} {xx} {yy}")
             return (mx, my, mxx, myy)
 
 
@@ -89,6 +95,7 @@ def gen_ran_time(time=None):
         if time < mtime < time * 1.3:
             if rd.random() > 0.85:
                 mtime += 1
+                log.write_log(f"根据 {time} 生成随机时间 {mtime}")
             return mtime
     return 2
 
@@ -107,7 +114,8 @@ def swipe_screen(x, y, xx, yy, sleep_time=None):
 
     adb_run(["adb", "-s", cfg.device_name,
                     "shell", "input", "touchscreen", "swipe"] + swipe_coords)
-    # put_text(f"滑动坐标{swipe_coords}，将休息{time_gap}秒，{get_time()}")
+    
+    log.write_log(f"滑动坐标{swipe_coords}，将休息{time_gap}秒")
     sleep(time_gap)
 
 
@@ -137,7 +145,8 @@ def click_screen(x, y, sleep_time=None):
 
     adb_run([cfg.adb_path, "-s", cfg.device_name, "shell",
              "input", "tap"] + click_coords)
-    # put_text(f"点击坐标{click_coords}，将休息{time_gap}秒，{get_time()}")
+    log.write_log(f"点击坐标{click_coords}，将休息{time_gap}秒")
+    
     sleep(time_gap)
 
 
@@ -146,6 +155,7 @@ def trans_percent_to_xy(x, y, xx=0, yy=0):
     y = round(cfg.height * y, 2)
     xx = round(cfg.width * xx, 2)
     yy = round(cfg.height * yy, 2)
+    log.write_log(f"根据百分比转换 {x} {y} {xx} {yy}")
     return (x, y, xx, yy)
 
 # Recognize
@@ -163,28 +173,35 @@ def comparebackxy(target_pic='', target_txt='', threshold=0.8):  # 找图，返�
     ocr_path = cfg.ocr_path
 
     if target_pic:
+        log.write_log(f"开始图像匹配 {target_pic}")
         target_pic_path = trans_pic_path(target_pic)
         img = cv2.imread(local_path, 0)  # 屏幕图片
         template = cv2.imread(target_pic_path, 0)  # 寻找目标
-        # 相关系数匹配方法：cv2.TM_CCOEFF
-        res = cv2.matchTemplate(img, template, cv2.TM_CCOEFF_NORMED)
+        res = cv2.matchTemplate(img, template, cv2.TM_CCOEFF_NORMED) # 相关系数匹配方法：cv2.TM_CCOEFF
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
+        log.write_log(f"{target_pic} 图像匹配结果 {max_val} {max_loc}")
         x, y = max_loc[0] + template.shape[1] // 2, max_loc[1] + \
             template.shape[0] // 2
         if max_val > threshold:
+            log.write_log(f"根据图像匹配结果返回 {x} {y}")
             return (x, y)
         else:
+            log.write_log(f"图像匹配失败 {target_pic}")
             return None
 
     if target_txt:
+        log.write_log(f"开始文字匹配 {target_txt}}")
         ocr = GetOcrApi(ocr_path)  # PaddleOCR API
         res = ocr.run(local_path)
         for data_dict in res['data']:
+            log.write_log(f"文字匹配结果 {data_dict}")
             if data_dict['text'] == target_txt:
                 box_data = data_dict['box']  # 获取box数据
                 x = (box_data[0][0] + box_data[2][0]) / 2  # 计算X坐标
                 y = (box_data[0][1] + box_data[2][1]) / 2  # 计算Y坐标
+                log.write_log(f"根据文字匹配结果返回 {x} {y}")
                 return (x, y)
+        log.write_log(f"文字匹配失败 {target_txt}")
         return None
 
 
@@ -209,3 +226,5 @@ def compare_click(target_pic='', target_txt='', threshold=0.8, sleep_time=None, 
     put_text(f"{fail}, 没找到 {target_pic}{target_txt}, {get_time()}")
     sleep(sleep_time)
     return None
+
+

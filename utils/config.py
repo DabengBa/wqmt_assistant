@@ -1,5 +1,6 @@
 from ruamel.yaml import YAML
 from os import path
+import time
 
 # 动态参数
 current_path = path.abspath(path.dirname(__file__))  
@@ -7,7 +8,9 @@ main_path = path.abspath(path.join(current_path, '..'))
 ocr_path = path.join(main_path, 'tools', 'PaddleOCR-json', 'PaddleOCR-json.exe')
 adb_path = path.join(main_path, 'tools', 'adb.exe')
 local_path = path.join(main_path, 'screenshot.png')
-#！ 以上参数在引用时需要使用类似config.ocr_path的格式
+## 当前日期
+formatted_today = time.strftime("%Y-%m-%d", time.localtime(time.time()))
+#! 以上参数在引用时需要使用类似config.ocr_path的格式
 
 # 读取Config
 try:
