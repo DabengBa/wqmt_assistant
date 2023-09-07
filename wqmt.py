@@ -1,174 +1,188 @@
-from utils import *
+from pywebio.output import put_text
+from utils.functions import *
+import utils.config  as cfg
 
 def topquit():
     put_text("开始：尝试从上方退出潜在弹窗与结算窗口")
-    [adb_click_percent(0.4, 0.06, sleepn=1,ran=1) for i in range(3)]
+    [click_screen(0.4, 0.06, sleep_time=1) for i in range(3)]
     put_text("完成：尝试从上方退出潜在弹窗与结算窗口")
 def homequit():
     put_text("开始：尝试从home按钮退出")
-    compare_click('./Target/wqmt/homequit.png',sleepn=5,success="已点击返回home",fail="")
-    adb_screenshot()
+    compare_click(target_pic='homequit',sleep_time=5,success="已点击返回home",fail="")
     put_text("完成：尝试从home按钮退出")
 
 def wqmtstart(): # 连接设备，失败则报错
-    subprocess.run([adb_path, '-s', devicename, 'shell', 'am', 'start', '-n', 'com.zy.wqmt.cn/com.papegames.gamelib_unity.BaseUnityImplActivity'], 
-            stdout=subprocess.PIPE, 
-            stderr=subprocess.PIPE)
+    adb_run([cfg.adb_path, '-s', cfg.device_name, 'shell', 'am', 'start', '-n', 'com.zy.wqmt.cn/com.papegames.gamelib_unity.BaseUnityImplActivity'], 
+            stdout=PIPE, 
+            stderr=PIPE)
 
 def panelcheck():
     put_text("开始：检查面板")
-    if comparebackxy('./Target/wqmt/friend1.png',fail="检测到面板未展开，尝试点击展开面板"):
+    if comparebackxy(target_pic='friend1',fail="检测到面板未展开，尝试点击展开面板"):
         pass
     else:
-        adb_click_percent(0.683, 0.53, sleepn=1) # 展开面板
+        click_screen(0.683, 0.53, sleep_time=2) # 展开面板
+        put_text("点击展开面板")
     put_text("完成：检查面板")
 
 def starttohome():# 启动到home
     put_text("开始：启动, 检查系统公告"+get_time())
     while True:
-        center = compare_click('./Target/wqmt/login.png', threshold=0.8)
+        center = compare_click(target_pic='login')
         if center:
-            put_text("点击开始")
+            put_text("点击开始游戏按钮")
             break
         else:
             put_text("没有找到开始游戏按钮，尝试启动app及检查系统公告")
             wqmtstart() # 启动无期迷途
-            center = compare_click('./Target/wqmt/start1.png',sleepn=2, success="发现系统公告")
+            center = compare_click(target_pic='start1',sleep_time=2, success="发现系统公告")
             if center:
-                topquit()
-            time.sleep(5)
+                click_screen(0.97,0.5) # 点击右侧边缘退出公告
+            sleep(4) # 等待后检查“开始游戏”
     put_text("等待16秒-->等待游戏完全进入主页面")
-    time.sleep(16)
-    topquit()
+    sleep(16)
+    log.write_log("点击右下角退出潜在弹窗")
+    [click_screen(0.916, 0.935) for i in range(2)]
+    
 
     while True:
-        center = comparebackxy('./Target/wqmt/fuben1.png', threshold=0.85)
+        center = comparebackxy(target_pic='fuben1')
         if center:
             break
         else:
             put_text("开始：检查月卡提示")
-            compare_click('./Target/wqmt/cancell.png',success="@@@@@@@已经取消月卡购买界面，请之后注意补充@@@@",fail="")
+            compare_click(target_pic='cancell',success="@@@@@@@已经取消月卡购买界面，请之后注意补充@@@@",fail="")
             put_text("结束：检查月卡提示")
-            topquit()
+            log.write_log("点击右下角退出潜在弹窗")
+            [click_screen(0.916, 0.935) for i in range(2)]
             put_text("开始：检查工会战提示")
-            compare_click('./Target/wqmt/confirm.png',success="@@@@@@@已经取消公会战提醒，请之后记得参加@@@@",fail="") 
+            compare_click(target_pic='confirm',success="@@@@@@@已经取消公会战提醒，请之后记得参加@@@@",fail="") 
             put_text("结束：检查工会战提示")
-            topquit()
+            log.write_log("点击右下角退出潜在弹窗")
+            [click_screen(0.916, 0.935) for i in range(2)]
 
-    adb_click_percent(0.683, 0.53, sleepn=1) # 展开面板 - 需要替换 面板展开()
-    adb_screenshot()
+    click_screen(0.683, 0.53, sleep_time=1) # 展开面板 - 需要替换 面板展开()
+    adb_get_screenshot()
     put_text("完成：启动, 检查系统公告"+get_time())
 
 def guild():
     put_text("开始：公会收菜"+get_time())
     panelcheck()
-    adb_screenshot()
-    adb_click_percent(0.933, 0.365, sleepn=3)
+    click_screen(0.933, 0.365, sleep_time=3)
     put_text("进入工会")
-    adb_screenshot()
-    [adb_click_percent(0.513, 0.028, ran=1, sleepn=1) for i in range(2)]
+    adb_get_screenshot()
+    [click_screen(0.513, 0.028, sleep_time=1) for i in range(2)]
     put_text("开始捐赠")
-    adb_click_percent(0.374, 0.69, sleepn=2) 
-    [adb_click_percent(0.169, 0.827, sleepn=1.5) for i in range(6)]
+    click_screen(0.374, 0.69, sleep_time=2) 
+    [click_screen(0.169, 0.827, sleep_time=1.5) for i in range(6)]
+    put_text("捐赠完毕")
     homequit()
     put_text("完成：公会收菜"+get_time())
 
 def dailycheckin():
     put_text("开始：Check-in"+get_time())
-    adb_screenshot()
-    adb_click_percent(0.825, 0.15, sleepn=2)
+    adb_get_screenshot()
+    click_screen(0.825, 0.15, sleep_time=2)
     put_text("尝试完成对话")
-    [adb_click_percent(0.807, 0.64, sleepn=0.8) for i in range(10)]
+    [click_screen(0.807, 0.64) for i in range(10)]
     put_text("尝试收取签到礼物")
     for i in range(2):
-        adb_click_percent(0.448, 0.752, sleepn=0.5)
-        adb_click_percent(0.558, 0.773, sleepn=0.5)
-        adb_click_percent(0.67, 0.752, sleepn=0.5)
-        adb_click_percent(0.792, 0.761, sleepn=0.5)
-    adb_screenshot()
+        click_screen(0.44, 0.75)
+        click_screen(0.55, 0.77)
+        click_screen(0.67, 0.75)
+        click_screen(0.79, 0.76)
+    put_text("完成对话和礼物收取")
+    adb_get_screenshot()
     topquit()
-    adb_screenshot()
+    adb_get_screenshot()
     put_text("完成：Check-in"+get_time())
 
 def getmail():
     put_text("开始：收邮件"+get_time())
-    adb_screenshot()
-    adb_click_percent(0.958, 0.146, sleepn=2)
-    [adb_click_percent(0.263, 0.942, sleepn=1) for i in range(4)]
+    adb_get_screenshot()
+    click_screen(0.958, 0.146, sleep_time=2)
+    [click_screen(0.263, 0.942, sleep_time=1) for i in range(4)]
     homequit()
+    adb_get_screenshot()
     put_text("完成：收邮件"+get_time())
 
 def Bureau():
     put_text("开始：管理局领体力，派遣"+get_time())
-    compare_click('./Target/wqmt/glj1.png', sleepn=3)
+    compare_click(target_pic='glj1', sleep_time=3)
+
     put_text("尝试收取体力")
-    [adb_click_percent(0.143, 0.456,sleepn=3) for i in range(2)]
-    [compare_click('./Target/wqmt/lingqu.png', sleepn=3, times=3) for i in range(2)]
+    click_screen(0.143, 0.456,sleep_time=3)
+    [compare_click(target_pic='lingqu', sleep_time=3, times=2) for i in range(2)]
+
+    adb_get_screenshot()
+    put_text("完成收取体力")
+
     topquit()
+
     put_text("尝试派遣")
-    adb_screenshot()
-    adb_click_percent(0.44, 0.742,sleepn=2)
-    adb_screenshot()
-    [adb_click_percent(0.105, 0.707, ran=1, sleepn=3) for i in range(4)]
+    adb_get_screenshot()
+    click_screen(0.44, 0.742,sleep_time=2)
+    [click_screen(0.105, 0.707, sleep_time=3) for i in range(4)]
+    put_text("完成派遣")
     homequit()
     put_text("完成：管理局领体力，派遣"+get_time())
 
 def friends(): # 朋友
     put_text("开始：拜访朋友"+get_time())
     panelcheck()
-    compare_click('./Target/wqmt/friend1.png', sleepn=2)
-    adb_screenshot()
-    [adb_click_percent(0.869, 0.855, ran=1, sleepn=1) for i in range(3)]
+    compare_click(target_pic='friend1', sleep_time=2)
+    adb_get_screenshot()
+    [click_screen(0.869, 0.855, sleep_time=1) for i in range(3)]
     homequit()
     put_text("完成：朋友拜访"+get_time())
 
 def construction(): # 基建
     put_text("开始：基建"+get_time())
     panelcheck()
-    adb_click_percent(0.844, 0.629, sleepn=3)
-    adb_screenshot()
+    click_screen(0.844, 0.629, sleep_time=3)
+    adb_get_screenshot()
     put_text("开始收菜")
-    [adb_click_percent(0.096, 0.373,sleepn=2) for i in range(3)] # 收菜
+    [click_screen(0.096, 0.373,sleep_time=2) for i in range(3)] # 收菜
     put_text("开始聊天")
-    [adb_click_percent(0.074, 0.249, sleepn=2) for i in range(2)]
-    adb_click_percent(0.908, 0.612)
-    [adb_click_percent(0.908, 0.889, ran=1) for i in range(40)]
+    [click_screen(0.074, 0.249, sleep_time=2) for i in range(2)]
+    click_screen(0.908, 0.612)
+    [click_screen(0.908, 0.889) for i in range(40)]
     homequit()
     put_text("完成：基建"+get_time())
 
 def purchase(): # 采购办领免费体力
     put_text("开始：采购办领体力"+get_time())
-    compare_click('./Target/wqmt/caigouban1.png', sleepn=4)
-    adb_click_percent(0.091, 0.41, sleepn=2)
-    [adb_swipe_percent(0.965, 0.578, 0.27, 0.611, sleepn=1) for i in range(3)]
+    compare_click(target_pic='caigouban1', sleep_time=4)
+    click_screen(0.091, 0.41, sleep_time=2)
+    [swipe_screen(0.965, 0.578, 0.27, 0.611, sleep_time=1) for i in range(3)]
     put_text("准备打开礼包")
-    adb_screenshot()
-    adb_click_percent(0.587, 0.88, sleepn=2) # 收每日体力
-    adb_screenshot()
-    adb_click_percent(0.766, 0.733, sleepn=2) # 确认
-    adb_screenshot()
+    adb_get_screenshot()
+    click_screen(0.587, 0.88, sleep_time=2) # 收每日体力
+    adb_get_screenshot()
+    click_screen(0.766, 0.733, sleep_time=2) # 确认
+    adb_get_screenshot()
     topquit()
     homequit()
     put_text("结束：采购办领体力"+get_time())
 
 def raidriver(): # 锈河
     put_text("开始：锈河副本"+get_time())
-    compare_click('./Target/wqmt/fuben1.png', sleepn=4, success="尝试打开副本界面")
-    adb_screenshot()
+    compare_click(target_pic='fuben1', sleep_time=4, success="尝试打开副本界面")
+    adb_get_screenshot()
 
     put_text("尝试切换到锈河")
-    adb_click_percent(0.17, 0.92, sleepn=3)
+    click_screen(0.17, 0.92, sleep_time=3)
 
-    compare_click('./Target/wqmt/fuben2.png', sleepn=2, success="尝试打开记忆风暴") 
-    adb_screenshot()
-    adb_click_percent(0.835, 0.682, sleepn=2)
+    compare_click(target_pic='fuben2', sleep_time=2, success="尝试打开记忆风暴") 
+    adb_get_screenshot()
+    click_screen(0.835, 0.682, sleep_time=2)
 
-    compare_click('./Target/wqmt/fubensaodang.png', sleepn=2, success="尝试点击连续扫荡") 
-    compare_click('./Target/wqmt/fubensaodangkaishi.png', sleepn=6, success="尝试点击开始") 
-    center = compare_click('./Target/wqmt/done.png', sleepn=2, success="尝试点击完成")
+    compare_click(target_pic='fubensaodang', sleep_time=2, success="尝试点击连续扫荡") 
+    compare_click(target_pic='fubensaodangkaishi', sleep_time=6, success="尝试点击开始") 
+    center = compare_click(target_pic='done', sleep_time=2, success="尝试点击完成")
 
     if center is None:
-        compare_click('./Target/wqmt/cancell.png', sleepn=2, success="次数用光，取消扫荡") 
+        compare_click(target_pic='cancell', sleep_time=2, success="次数用光，取消扫荡") 
 
     topquit()
     homequit()
@@ -176,31 +190,31 @@ def raidriver(): # 锈河
 
 def raid11(): # 刷11章
     put_text("开始：raid任务"+get_time())
-    compare_click('./Target/wqmt/fuben1.png', sleepn=4, success="尝试打开副本界面")
-    compare_click('./Target/wqmt/fuben3-11.png', sleepn=2, success="尝试打开11章")
-    [adb_swipe_percent(0.965, 0.578, 0.27, 0.611, sleepn=1) for i in range(2)] # 滑动屏幕
-    adb_click_percent(0.078, 0.541, sleepn=2) # 点击11-6
-    compare_click('./Target/wqmt/fubensaodang.png', sleepn=2, success="尝试点击连续扫荡")
-    [adb_click_percent(0.712, 0.683, ran=1,) for i in range(6)] # 点击+号
-    compare_click('./Target/wqmt/fubensaodangkaishi.png', sleepn=12, success="尝试点击开始")
-    compare_click('./Target/wqmt/done.png', sleepn=2, success="尝试点击完成")
-    topquit()
+    compare_click(target_pic='fuben1', sleep_time=4, success="尝试打开副本界面")
+    click_screen(0.98, 0.41, sleep_time=2) # 点击切换到右侧
+    compare_click(target_pic='fuben3-11', sleep_time=2, success="尝试打开11章")
+    [swipe_screen(0.965, 0.578, 0.27, 0.611, sleep_time=1) for i in range(2)] # 滑动屏幕
+    click_screen(0.078, 0.541, sleep_time=2) # 点击11-6
+    compare_click(target_pic='fubensaodang', sleep_time=2, success="尝试点击连续扫荡")
+    [click_screen(0.712, 0.683) for i in range(6)] # 点击+号
+    compare_click(target_pic='fubensaodangkaishi', sleep_time=12, success="尝试点击开始")
+    compare_click(target_pic='done', sleep_time=2, success="尝试点击完成")
     homequit()
     put_text("结束：raid任务"+get_time())
 
 def raiddark():## 深井
     put_text("开始：深井扫荡"+get_time())
-    compare_click('./Target/wqmt/fuben1.png', sleepn=4, success="尝试打开副本界面"+get_time())
-    adb_click_percent(0.837, 0.891, sleepn=2) # 内海
-    adb_click_percent(0.193, 0.523, sleepn=2) # 浊暗之井
+    compare_click(target_pic='fuben1', sleep_time=4, success="尝试打开副本界面"+get_time())
+    click_screen(0.837, 0.891, sleep_time=2) # 内海
+    click_screen(0.193, 0.523, sleep_time=2) # 浊暗之井
     while True:
-        center = compare_click('./Target/wqmt/fuben4.png', sleepn=2, success="尝试找到乐园"+get_time())
+        center = compare_click(target_pic='fuben4', sleep_time=2, success="尝试找到乐园"+get_time())
         if center:
-            adb_click_percent(0.587, 0.86,sleepn=3) # 点击扫荡
+            click_screen(0.587, 0.86,sleep_time=3) # 点击扫荡
             break
         else:
-            center = compare_click('./Target/wqmt/fuben4-1.png', 
-                                   threshold=0.85 ,sleepn=3, success="非乐园副本，切换页面"+get_time())
+            center = compare_click(target_pic='fuben4-1', 
+                                   threshold=0.85 ,sleep_time=3, success="非乐园副本，切换页面"+get_time())
     topquit()
     homequit()
     put_text("完成：深井扫荡"+get_time())

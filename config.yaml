@@ -1,14 +1,16 @@
 sleep_time: 0.3
-device_name: 127.0.0.1:16384
+device_name: 127.0.0.1:16416
 dimensions: 1280,720 # 屏幕分辨率，请注意使用英文逗号
 
 remote_path: /sdcard/screenshot.png # 部分模拟器存储截图的位置不同
 
 # 调试用，没有实际作用
-device_name2: 127.0.0.1:16416
+device_name2: 127.0.0.1:16384
 
 # 程序自动配置, 勿动
 current_path: C:\Software\DEV\wqmt_assistant
-default_options:
-- 副本-深井
-
+saved_selections:
+- 基建收菜
+- 管理局
+- 好友
+- 副本-11-6
