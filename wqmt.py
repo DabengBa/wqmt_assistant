@@ -191,6 +191,7 @@ def raidriver(): # 锈河
 def raid11(): # 刷11章
     put_text("开始：raid任务"+get_time())
     compare_click(target_pic='fuben1', sleep_time=4, success="尝试打开副本界面")
+    click_screen(0.98, 0.41, sleep_time=2) # 点击切换到右侧
     compare_click(target_pic='fuben3-11', sleep_time=2, success="尝试打开11章")
     [swipe_screen(0.965, 0.578, 0.27, 0.611, sleep_time=1) for i in range(2)] # 滑动屏幕
     click_screen(0.078, 0.541, sleep_time=2) # 点击11-6
