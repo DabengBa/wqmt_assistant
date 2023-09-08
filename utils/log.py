@@ -1,9 +1,11 @@
 from os import path, listdir, remove
-import time
+import time as time
 import utils.config as cfg
 
 days_to_keep = 7
-log_folder = path.join(cfg.main_path, 'log')
+log_folder = path.join(cfg.current_path, 'log')
+
+# 遍历日志文件夹中的所有文件  
 for filename in listdir(log_folder):  
     file_path = path.join(log_folder, filename)  
     # 检查文件是否是普通文件并且是否在log文件夹中  
@@ -20,10 +22,7 @@ for filename in listdir(log_folder):
             print(f"Deleted file: {filename}")
 
 def write_log(content):
-    file_path = path.join(cfg.main_path, 'log', cfg.formatted_today + '.txt') 
+    file_path = path.join(cfg.current_path, 'log', cfg.formatted_today + '.txt') 
     formatted_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()))
     with open(file_path, 'a', encoding='utf-8') as f:  # 使用追加模式打开文件  
         f.write(content + ' ' + formatted_time + '\n')
-
-# 使用示例  
-write_log("需要记录的内容2")
