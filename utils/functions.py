@@ -162,13 +162,13 @@ def comp_tap(tgt_pic='', tgt_txt='', threshold=0.8, sleep_time=None, times=1,
     if center:
         x, y = center
         click_coords = [str(coord) for coord in [x, y]]
-        log.logit(f"{success}, 找到 {tgt_pic}{tgt_txt}，坐标{click_coords}")
+        log.logit(f"{success}, 找到 {tgt_pic}{tgt_txt}，坐标{click_coords}", False)
         for _ in range(times):  # 在目标位置重复点击，用于收菜之后再确认一下
             click_screen(x, y)
             sleep(sleep_time)
         return (x, y)
 
-    log.logit(f"{fail}, 没找到 {tgt_pic}{tgt_txt}")
+    log.logit(f"{fail}, 没找到 {tgt_pic}{tgt_txt}", False)
     sleep(sleep_time)
     return None
 
@@ -219,5 +219,5 @@ def comp_xy(tgt_pic='', tgt_txt='', threshold=0.8, success='success', fail='fail
                 y = (box_data[0][1] + box_data[2][1]) / 2  # 计算Y坐标
                 log.logit(f"根据文字匹配结果返回 {x} {y}")
                 return (x, y)
-        log.logit(f"文字匹配失败 {tgt_txt}")
+        log.logit(f"文字匹配失败 {tgt_txt}", F)
         return None

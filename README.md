@@ -48,7 +48,7 @@ start.bat
 
 ## 方法2
 
-先打开模拟器，然后双击main.exe
+-[ ] 先打开模拟器，然后双击main.exe - 请等待release
 
 # 挖坑
 
