@@ -1,6 +1,9 @@
+
+![img](https://github.com/walklty/wqmt_assistant/blob/dev/Target/Snipaste_2023-09-09_05-17-32.png?raw=true)
 # 前言
 
 ## 废话
+![author](https://img.shields.io/badge/author-ChatGPT3.5-blue)
 
 本项目由ChatGPT 3.5编写，Codeium复审代码，用于无期迷途每日收菜
 
