@@ -75,7 +75,7 @@ class PPOCR_pipe:
         """对一张本地图片进行文字识别。\n
         `exePath`: 图片路径。\n
         `return`:  {"code": 识别码, "data": 内容列表或错误信息字符串}\n"""
-        writeDict = {"image_path": imgPath}
+        writeDict = {"image_dir": imgPath}
         return self.runDict(writeDict)
 
     def runClipboard(self):
