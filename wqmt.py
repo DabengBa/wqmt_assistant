@@ -17,6 +17,7 @@ def wqmtstart(): # 连接设备，失败则报错
     adb_run([cfg.adb_dir, '-s', cfg.device_name, 'shell', 'am', 'start', '-n', 'com.zy.wqmt.cn/com.papegames.gamelib_unity.BaseUnityImplActivity'], 
             stdout=PIPE, 
             stderr=PIPE)
+    sleep(10)
 
 def panelcheck():
     log.logit("开始：检查面板")
@@ -35,7 +36,7 @@ def starttohome():# 启动到home
             log.logit("点击开始游戏按钮")
             break
         else:
-            log.logit("没有找到开始游戏按钮，尝试启动app及检查系统公告")
+            log.logit("没有找到开始游戏按钮，尝试启动app及检查系统公告, 等待10秒")
             wqmtstart() # 启动无期迷途
             center = comp_tap(tgt_pic='start1',sleep_time=2, success="发现系统公告")
             if center:

@@ -4,9 +4,7 @@ from pywebio.input import actions as pw_actions
 import utils.log as log
 
 if __name__ == '__main__':
-    [log.logit(" ") for i in range(5)]
     adb_connect()
-    [log.logit(" ") for i in range(2)]
     log.logit("请提前在Config.yaml中配置好mumu的ip地址和端口")
     log.logit("建议按照12小时间隔，早晚各一次。晚上执行的时候请在17点之后，以便领取体力")
 
