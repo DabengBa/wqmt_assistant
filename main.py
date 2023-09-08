@@ -21,7 +21,7 @@ if __name__ == '__main__':
         put_text("完成所有任务")
     if "自选" in selected_options:
         log.write_log("打开自选界面")
-        agree = select_jobs()
+        agree = wq.select_jobs()
         if "启动" in agree:
             wq.starttohome()
         if "签到" in agree:

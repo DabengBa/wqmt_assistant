@@ -1,4 +1,6 @@
 from pywebio.output import put_text
+from pywebio.input import checkbox
+from ruamel.yaml import YAML
 from utils.functions import *
 import utils.config  as cfg
 
@@ -236,3 +238,16 @@ def night():
     friends()
     construction()
     raid11()
+
+def select_jobs():
+    options = [
+        '启动', '签到', '公会', '邮件', '采购中心-每日免费体力', '基建收菜', '管理局', '好友', '副本-锈河记忆', '副本-11-6', '副本-深井'
+    ]
+    selected_options = checkbox(
+        "Selection", options=options, value=cfg.saved_selections)
+    saved_selections = selected_options
+    cfg.config['saved_selections'] = saved_selections
+    with open(path.join(cfg.main_path, 'config.yaml'), 'w', encoding='utf-8') as f:
+        yaml = YAML()
+        yaml.dump(cfg.config, f)
+    return selected_options
