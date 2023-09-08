@@ -1,9 +1,11 @@
 from ruamel.yaml import YAML
 from os import path
 import time
+from sys import argv
 
 # 动态参数
-current_path = path.abspath(path.dirname(__file__))  
+
+current_path = path.join(path.dirname(argv[0]),'')
 main_path = path.abspath(path.join(current_path, '..'))
 ocr_path = path.join(main_path, 'tools', 'PaddleOCR-json', 'PaddleOCR-json.exe')
 adb_path = path.join(main_path, 'tools', 'adb.exe')
