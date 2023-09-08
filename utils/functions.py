@@ -5,95 +5,115 @@ from time import sleep
 import random as rd
 # Pip
 from subprocess import run as adb_run, DEVNULL, PIPE
-from pywebio.output import put_text, put_image
+from pywebio.output import put_image as pw_put_image
 import cv2
 # Private
 from .PPOCR_api import GetOcrApi
 import utils.config as cfg
 import utils.log as log
 
+
 def get_time():
     time_stamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     return time_stamp
 
-
-
 # ADB
-## ADB-连接
+# ADB-连接
+
+
 def adb_disconnect():  # 断开设备
-    adb_run([cfg.adb_path, 'disconnect',  cfg.device_name],
+    adb_run([cfg.adb_dir, 'disconnect',  cfg.device_name],
             stdout=DEVNULL,
             stderr=DEVNULL)
 
+
 def adb_connect():  # 连接设备，失败则报错
-    result = adb_run([cfg.adb_path, 'connect',  cfg.device_name],
+    result = adb_run([cfg.adb_dir, 'connect',  cfg.device_name],
                      stdout=PIPE,
                      stderr=PIPE)
     if 'cannot' in result.stdout.decode():
-        put_text("连接模拟器失败，请见检查congfig.yaml中device_name的配置")
+        log.logit(f"连接模拟器失败，请见检查congfig.yaml中device_name的配置")
     else:
-        put_text("连接模拟器成功"+" "+get_time())
-        log.write_log(f"连接模拟器成功")
+        log.logit(f"连接模拟器成功")
 
-## ADB-屏幕控制
-### ADB-屏幕控制-随机数
+# ADB-屏幕控制
+# ADB-屏幕控制-随机数
+
+
 def gen_ran_xy(x, y, xx=0, yy=0):
-  # 根据xy数值，在一个15px的区间内生成新的正态分布数值，如果超过15px则重新生成
+    # 根据xy数值，在一个15px的区间内生成新的正态分布数值，如果超过15px则重新生成
+    log.logit(f"接收坐标 {x} {y} {xx} {yy}，准备生成随机坐标", False)
+    while True:
+        # 生成均值为x和y的正态分布随机数
+        coords = [round(rd.normalvariate(coord, 7), 2) for coord in [x, y]]
 
-  while True:
-    # 生成均值为x和y的正态分布随机数
-    coords = [round(rd.normalvariate(coord, 7), 2) for coord in [x, y]]
+        if xx != 0:
+            # 生成均值为xx和yy的正态分布随机数
+            coords.extend([round(rd.normalvariate(coord, 7), 2)
+                          for coord in [xx, yy]])
 
-    if xx != 0:
-      # 生成均值为xx和yy的正态分布随机数
-      coords.extend([round(rd.normalvariate(coord, 7), 2) for coord in [xx, yy]])
+        if all(abs(coord_1 - coord_2) <= 15 for coord_1, coord_2 in zip([x, y, xx, yy], coords)) and all(coord > 0 for coord in coords):
+            break
 
-    if all(abs(coord_1 - coord_2) <= 15 for coord_1, coord_2 in zip([x, y, xx, yy], coords)) and all(coord > 0 for coord in coords):
-      break
+    log.logit(f"生成了符合要求的随机坐标 {' '.join(map(str, coords))}", False)
+    return tuple(coords)
 
-  log.write_log(f"生成随机数 {' '.join(map(str, coords))}")
-  return tuple(coords)
 
 def gen_ran_time(time=None):
+    log.logit(f"收到时间 {time} 准备生成随机时间", False)
     if time is None:
         time = cfg.sleep_time
+        log.logit(f"因为时间为None，赋值为{cfg.sleep_time}", False)
     for _ in range(15):
         mtime = round(rd.normalvariate(time, time * 0.3), 2)
         if time < mtime < time * 1.3:
+            log.logit(f"根据 {time} 生成随机时间 {mtime}", False)
             if rd.random() > 0.85:
                 mtime += 1
-                log.write_log(f"根据 {time} 生成随机时间 {mtime}")
+                log.logit(f"遇到了15%的随机事件，随机时间调整为 {mtime}", False)
             return mtime
+    log.logit(f"根据 {time} 在指定次数内没有生成符合要求的新时间，将返回2", False)
     return 2
 
-## ADB-屏幕控制-执行
-def adb_get_screenshot():  # 屏幕截图覆盖screenshop.png, 使用DEVNULL避免输出命令行
-    adb_run([cfg.adb_path, '-s', cfg.device_name, 'shell', 'screencap',
-             cfg.remote_path], stdout=DEVNULL, stderr=DEVNULL)
-    adb_run([cfg.adb_path, '-s', cfg.device_name, 'pull', cfg.remote_path,
-             cfg.sni_path], stdout=DEVNULL, stderr=DEVNULL)
-    put_image(open(cfg.sni_path, 'rb').read(), width='500px')
-    log.write_log(f"屏幕截图")
+# ADB-屏幕控制-执行
+
+
+def adb_cap_scrn():
+    log.logit(f"开始屏幕截图，尝试保存到{cfg.remote_dir}", False)
+    adb_run([cfg.adb_dir, '-s', cfg.device_name, 'shell', 'screencap',
+             cfg.remote_dir], stdout=DEVNULL, stderr=DEVNULL)
+    log.logit(f"开始将截图文件拉到本地{cfg.scrn_dir}", False)
+    adb_run([cfg.adb_dir, '-s', cfg.device_name, 'pull', cfg.remote_dir,
+             cfg.scrn_dir], stdout=DEVNULL, stderr=DEVNULL)
+    pw_put_image(open(cfg.scrn_dir, 'rb').read(), width='500px')
+    log.logit(f"完成截图, 保存到{cfg.scrn_dir}", False)
+
 
 def swipe_screen(x, y, xx, yy, sleep_time=None):
 
+    log.logit(f"收到坐标 {x} {y} {xx} {yy}，{sleep_time}准备滑动屏幕", False)
+
     if sleep_time is None:
         sleep_time = cfg.sleep_time
-
+        log.logit(f"因为时间为None，赋值为{cfg.sleep_time}", False)
     if x < 1:
+        log.logit(f"收到百分比坐标，将传入trans转换成px", False)
         x, y, xx, yy = trans_percent_to_xy(x, y, xx, yy)
 
     x, y, xx, yy = gen_ran_xy(x, y, xx, yy)
     swipe_coords = [str(coord) for coord in [x, y, xx, yy]]
     time_gap = gen_ran_time(sleep_time)
 
+    log.logit(f"开始通过adb滑动屏幕", False)
     adb_run(["adb", "-s", cfg.device_name,
                     "shell", "input", "touchscreen", "swipe"] + swipe_coords)
-    
-    log.write_log(f"滑动坐标{swipe_coords}，将休息{time_gap}秒")
+
+    log.logit(f"滑动坐标{swipe_coords}完成，将休息{time_gap}秒", False)
     sleep(time_gap)
 
+
 def click_screen(x, y, sleep_time=None):
+    log.logit(f"收到坐标 {x} {y}，{sleep_time}准备点击屏幕", False)
 
     if sleep_time is None:
         sleep_time = cfg.sleep_time
@@ -105,29 +125,36 @@ def click_screen(x, y, sleep_time=None):
     click_coords = [str(coord) for coord in [x, y]]
     time_gap = gen_ran_time(sleep_time)
 
-    adb_run([cfg.adb_path, "-s", cfg.device_name, "shell",
+    log.logit(f"开始通过adb滑动屏幕", False)
+    adb_run([cfg.adb_dir, "-s", cfg.device_name, "shell",
              "input", "tap"] + click_coords)
-    log.write_log(f"点击坐标{click_coords}，将休息{time_gap}秒")
-    
+    log.logit(f"点击坐标{click_coords}，将休息{time_gap}秒", False)
+
     sleep(time_gap)
 
+
 def trans_percent_to_xy(x, y, xx=0, yy=0):
+    log.logit(f"根据百分比转换 {x} {y} {xx} {yy}", False)
+    
     x = round(cfg.width * x, 2)
     y = round(cfg.height * y, 2)
     xx = round(cfg.width * xx, 2)
     yy = round(cfg.height * yy, 2)
+
     if xx == 0:
         coord = (x, y)
-        log.write_log(f"根据百分比转换 {x} {y}")
     else:
         coord = (x, y, xx, yy)
-        log.write_log(f"根据百分比转换 {x} {y} {xx} {yy}")
+    log.logit(f"得到转换后的坐标为 {x} {y} {xx} {yy}", False)
     return coord
 
-def compare_click(target_pic='', target_txt='', threshold=0.8, sleep_time=None, times=1,
-                  success="success", fail="fail"):
 
-    center = comparebackxy(target_pic, target_txt, threshold)
+def comp_tap(tgt_pic='', tgt_txt='', threshold=0.8, sleep_time=None, times=1,
+             success="success", fail="fail"):
+    log.logit(
+        f"comp_tap收到指令 {tgt_pic}{tgt_txt} {threshold} {sleep_time} {times}，开始查找", False)
+
+    center = comp_xy(tgt_pic, tgt_txt, threshold)
 
     if sleep_time is None:
         sleep_time = cfg.sleep_time
@@ -135,56 +162,62 @@ def compare_click(target_pic='', target_txt='', threshold=0.8, sleep_time=None, 
     if center:
         x, y = center
         click_coords = [str(coord) for coord in [x, y]]
-        put_text(
-            f"{success}, 找到 {target_pic}{target_txt}，坐标{click_coords}, {get_time()}")
+        log.logit(f"{success}, 找到 {tgt_pic}{tgt_txt}，坐标{click_coords}")
         for _ in range(times):  # 在目标位置重复点击，用于收菜之后再确认一下
             click_screen(x, y)
             sleep(sleep_time)
         return (x, y)
 
-    put_text(f"{fail}, 没找到 {target_pic}{target_txt}, {get_time()}")
+    log.logit(f"{fail}, 没找到 {tgt_pic}{tgt_txt}")
     sleep(sleep_time)
     return None
 
 # 图像/文字识别
-def trans_pic_path(name):
-    pic_path = path.join(cfg.current_path, "Target", cfg.prog_Name, f"{name}.png")
-    return pic_path
 
-def comparebackxy(target_pic='', target_txt='', threshold=0.8, success='success', fail='fail'):  # 找图，返回坐标
 
-    adb_get_screenshot()
-    sni_path = cfg.sni_path
-    ocr_path = cfg.ocr_path
+def trans_pic_dir(name):
+    pic_dir = path.join(cfg.curr_dir, "Target",
+                        cfg.prog_Name, f"{name}.png")
+    log.logit(f"trans生成图片路径为 {pic_dir}", False)
+    return pic_dir
 
-    if target_pic:
-        log.write_log(f"开始图像匹配 {target_pic}")
-        target_pic_path = trans_pic_path(target_pic)
-        img = cv2.imread(sni_path, 0)  # 屏幕图片
-        template = cv2.imread(target_pic_path, 0)  # 寻找目标
-        res = cv2.matchTemplate(img, template, cv2.TM_CCOEFF_NORMED) # 相关系数匹配方法：cv2.TM_CCOEFF
+
+def comp_xy(tgt_pic='', tgt_txt='', threshold=0.8, success='success', fail='fail'):
+    log.logit(f"comp_xy收到指令 {tgt_pic}{tgt_txt} {threshold}，开始查找坐标", False)
+
+    adb_cap_scrn()
+    scrn_dir = cfg.scrn_dir
+    ocr_dir = cfg.ocr_dir
+
+    if tgt_pic:
+        log.logit(f"开始图像匹配 {tgt_pic}")
+        tgt_pic_dir = trans_pic_dir(tgt_pic)
+        img = cv2.imread(scrn_dir, 0)  # 屏幕图片
+        template = cv2.imread(tgt_pic_dir, 0)  # 寻找目标
+        # 相关系数匹配方法：cv2.TM_CCOEFF
+        res = cv2.matchTemplate(img, template, cv2.TM_CCOEFF_NORMED)
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
-        log.write_log(f"{target_pic} 图像匹配结果 {max_val} {max_loc}")
+        log.logit(f"{tgt_pic} 图像匹配结果 {max_val} {max_loc}", False)
         x, y = max_loc[0] + template.shape[1] // 2, max_loc[1] + \
             template.shape[0] // 2
         if max_val > threshold:
-            log.write_log(f"{success}, 根据图像匹配结果返回 {x} {y}")
+            log.logit(f"{success}, 根据图像匹配结果返回 {x} {y}")
             return (x, y)
         else:
-            log.write_log(f"{fail}, 图像匹配失败 {target_pic}")
+            log.logit(f"{fail}, 图像匹配失败")
             return None
 
-    if target_txt:
-        log.write_log(f"开始文字匹配 {target_txt}")
-        ocr = GetOcrApi(ocr_path)  # PaddleOCR API
-        res = ocr.run(sni_path)
+    if tgt_txt:
+        log.logit(f"开始文字匹配 {tgt_txt}")
+        ocr = GetOcrApi(ocr_dir)  # PaddleOCR API
+        res = ocr.run(scrn_dir)
         for data_dict in res['data']:
-            log.write_log(f"文字匹配结果 {data_dict}")
-            if data_dict['text'] == target_txt:
+            log.logit(f"文字匹配结果 {data_dict}", False)
+            if data_dict['text'] == tgt_txt:
                 box_data = data_dict['box']  # 获取box数据
                 x = (box_data[0][0] + box_data[2][0]) / 2  # 计算X坐标
                 y = (box_data[0][1] + box_data[2][1]) / 2  # 计算Y坐标
-                log.write_log(f"根据文字匹配结果返回 {x} {y}")
+                log.logit(f"根据文字匹配结果返回 {x} {y}")
                 return (x, y)
-        log.write_log(f"文字匹配失败 {target_txt}")
+        log.logit(f"文字匹配失败 {tgt_txt}")
         return None

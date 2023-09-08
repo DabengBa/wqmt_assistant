@@ -1,26 +1,26 @@
 from utils.functions import *
 import wqmt as wq
-from pywebio.input import actions
+from pywebio.input import actions as pw_actions
 import utils.log as log
 
 if __name__ == '__main__':
-    [put_text(" ") for i in range(5)]
+    [log.logit(" ") for i in range(5)]
     adb_connect()
-    [put_text(" ") for i in range(2)]
-    put_text("请提前在Config.yaml中配置好mumu的ip地址和端口")
-    put_text("建议按照12小时间隔，早晚各一次。晚上执行的时候请在17点之后，以便领取体力")
+    [log.logit(" ") for i in range(2)]
+    log.logit("请提前在Config.yaml中配置好mumu的ip地址和端口")
+    log.logit("建议按照12小时间隔，早晚各一次。晚上执行的时候请在17点之后，以便领取体力")
 
     options = ['早一次', '晚一次', '自选']
-    log.write_log("打开options界面")
-    selected_options = actions("嗯……", options)
+    log.logit("打开options界面")
+    selected_options = pw_actions("嗯……", options)
     if "早一次" in selected_options:
         wq.morning()
-        put_text("完成所有任务")
+        log.logit("完成所有任务")
     if "晚一次" in selected_options:
         wq.night()
-        put_text("完成所有任务")
+        log.logit("完成所有任务")
     if "自选" in selected_options:
-        log.write_log("打开自选界面")
+        log.logit("打开自选界面")
         agree = wq.select_jobs()
         if "启动" in agree:
             wq.starttohome()
@@ -44,4 +44,4 @@ if __name__ == '__main__':
             wq.raid11()
         if "副本-深井" in agree:
             wq.raiddark()
-        put_text("完成所有任务")
+        log.logit("完成所有任务")
