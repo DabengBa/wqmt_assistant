@@ -21,6 +21,7 @@ try:
 except FileNotFoundError:
     print("Error: config.yaml file not found.")
 
+log_switch = config.get('log_switch', '')
 sleep_time = config.get('sleep_time', '')
 remote_dir = config.get('remote_dir', '')
 device_name = config.get('device_name', '')
