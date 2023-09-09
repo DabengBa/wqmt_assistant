@@ -269,7 +269,7 @@ def select_jobs():
         "Selection", options=options, value=cfg.saved_selections)
     saved_selections = selected_options
     cfg.config['saved_selections'] = saved_selections
-    with open(path.join(cfg.main_dir, 'config.yaml'), 'w', encoding='utf-8') as f:
+    with open(path.join(cfg.curr_dir, 'config.yaml'), 'w', encoding='utf-8') as f:
         yaml = YAML()
         yaml.dump(cfg.config, f)
     return selected_options
