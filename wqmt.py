@@ -17,9 +17,7 @@ def rouge():
         comp_tap(tgt_pic='rouge003_start', sleep_time=6)
         click_screen(0.35, 0.5, sleep_time=1)
         comp_tap(tgt_pic='rouge004_confirmselection', sleep_time=2, times=2)
-        click_screen(0.5, 0.54)
-        click_screen(0.5, 0.23)
-        click_screen(0.04, 0.06)
+        click_screen(0.04, 0.06,sleep_time=1)
         comp_tap(tgt_pic='rouge005_termination', sleep_time=2, times=2)
         comp_tap(tgt_pic='rouge006_quit', sleep_time=4)
         count += 1

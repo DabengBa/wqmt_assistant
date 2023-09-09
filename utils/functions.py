@@ -85,7 +85,8 @@ def adb_cap_scrn():
     log.logit(f"开始将截图文件拉到本地{cfg.scrn_dir}", False)
     adb_run([cfg.adb_dir, '-s', cfg.device_name, 'pull', cfg.remote_dir,
              cfg.scrn_dir], stdout=DEVNULL, stderr=DEVNULL)
-    pw_put_image(open(cfg.scrn_dir, 'rb').read(), width='500px')
+    if cfg.log_switch == 'open':
+        pw_put_image(open(cfg.scrn_dir, 'rb').read(), width='500px')
     log.logit(f"完成截图, 保存到{cfg.scrn_dir}", False)
 
 
