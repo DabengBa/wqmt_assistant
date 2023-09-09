@@ -4,6 +4,26 @@ from utils.functions import *
 import utils.config  as cfg
 import utils.log as log
 
+
+
+def rouge():
+    log.logit("开始：刷肉鸽")
+    comp_tap(tgt_pic='rouge000_ico', sleep_time=3)
+    count = 1
+    while True:
+        log.logit(f"开始第{count}次")
+        comp_tap(tgt_pic='rouge001_entry',fail="没有找到肉鸽入口，请确保已经进到有“进入探索”的界面", sleep_time=3)
+        comp_tap(tgt_pic='rouge002_nextstep', sleep_time=3)
+        comp_tap(tgt_pic='rouge003_start', sleep_time=6)
+        click_screen(0.35, 0.5, sleep_time=1)
+        comp_tap(tgt_pic='rouge004_confirmselection', sleep_time=2, times=2)
+        click_screen(0.5, 0.54)
+        click_screen(0.5, 0.23)
+        click_screen(0.04, 0.06)
+        comp_tap(tgt_pic='rouge005_termination', sleep_time=2, times=2)
+        comp_tap(tgt_pic='rouge006_quit', sleep_time=4)
+        count += 1
+
 def topquit():
     log.logit("开始：尝试从上方退出潜在弹窗与结算窗口")
     [click_screen(0.4, 0.06, sleep_time=1) for i in range(3)]
@@ -30,41 +50,44 @@ def panelcheck():
 
 def starttohome():# 启动到home
     log.logit("开始：启动, 检查系统公告")
-    while True:
-        center = comp_tap(tgt_pic='login')
-        if center:
-            log.logit("点击开始游戏按钮")
-            break
-        else:
-            log.logit("没有找到开始游戏按钮，尝试启动app及检查系统公告, 等待10秒")
-            wqmtstart() # 启动无期迷途
-            center = comp_tap(tgt_pic='start1',sleep_time=2, success="发现系统公告")
+    if comp_xy(tgt_pic='caigouban1',threshold=0.95): # 看看是不是已经进入主界面了
+        pass
+    else:
+        while True:
+            center = comp_tap(tgt_pic='login')
             if center:
-                click_screen(0.97,0.5) # 点击右侧边缘退出公告
-            sleep(4) # 等待后检查“开始游戏”
-    log.logit("等待16秒-->等待游戏完全进入主页面")
-    sleep(16)
-    log.logit("点击右下角退出潜在弹窗")
+                log.logit("点击开始游戏按钮")
+                break
+            else:
+                log.logit("没有找到开始游戏按钮，尝试启动app及检查系统公告, 等待10秒")
+                wqmtstart() # 启动无期迷途
+                center = comp_tap(tgt_pic='start1',sleep_time=2, success="发现系统公告")
+                if center:
+                    click_screen(0.97,0.5) # 点击右侧边缘退出公告
+                sleep(4) # 等待后检查“开始游戏”
+        log.logit("等待16秒-->等待游戏完全进入主页面")
+        sleep(16)
+        log.logit("点击右下角退出潜在弹窗")
+        [click_screen(0.916, 0.935) for i in range(2)]
+        
+
+        while True:
+            center = comp_xy(tgt_pic='fuben1')
+            if center:
+                break
+            else:
+                log.logit("开始：检查月卡提示")
+                comp_tap(tgt_pic='cancell',success="@@@@@@@已经取消月卡购买界面，请之后注意补充@@@@",fail="")
+                log.logit("结束：检查月卡提示")
+                log.logit("点击右下角退出潜在弹窗")
+                [click_screen(0.916, 0.935) for i in range(2)]
+                log.logit("开始：检查工会战提示")
+                comp_tap(tgt_pic='confirm',success="@@@@@@@已经取消公会战提醒，请之后记得参加@@@@",fail="") 
+                log.logit("结束：检查工会战提示")
+                log.logit("点击右下角退出潜在弹窗")
+                [click_screen(0.916, 0.935) for i in range(2)]
     [click_screen(0.916, 0.935) for i in range(2)]
-    
-
-    while True:
-        center = comp_xy(tgt_pic='fuben1')
-        if center:
-            break
-        else:
-            log.logit("开始：检查月卡提示")
-            comp_tap(tgt_pic='cancell',success="@@@@@@@已经取消月卡购买界面，请之后注意补充@@@@",fail="")
-            log.logit("结束：检查月卡提示")
-            log.logit("点击右下角退出潜在弹窗")
-            [click_screen(0.916, 0.935) for i in range(2)]
-            log.logit("开始：检查工会战提示")
-            comp_tap(tgt_pic='confirm',success="@@@@@@@已经取消公会战提醒，请之后记得参加@@@@",fail="") 
-            log.logit("结束：检查工会战提示")
-            log.logit("点击右下角退出潜在弹窗")
-            [click_screen(0.916, 0.935) for i in range(2)]
-
-    click_screen(0.683, 0.53, sleep_time=1) # 展开面板 - 需要替换 面板展开()
+    panelcheck() # 检查面板状态，如果没有展开则展开
     adb_cap_scrn()
     log.logit("完成：启动, 检查系统公告")
 
