@@ -8,7 +8,7 @@ if __name__ == '__main__':
     log.logit("请提前在Config.yaml中配置好mumu的ip地址和端口")
     log.logit("建议按照12小时间隔，早晚各一次。晚上执行的时候请在17点之后，以便领取体力")
 
-    options = ['早一次', '晚一次', '自选']
+    options = ['早一次', '晚一次', '自选', '单刷肉鸽']
     log.logit("打开options界面")
     selected_options = pw_actions("嗯……", options)
     if "早一次" in selected_options:
@@ -43,3 +43,6 @@ if __name__ == '__main__':
         if "副本-深井" in agree:
             wq.raiddark()
         log.logit("完成所有任务")
+    if '单刷肉鸽' in selected_options:
+        wq.starttohome()
+        wq.rouge()
