@@ -24,9 +24,7 @@ for filename in listdir(log_folder):
 
 
 def logit(content, shown=True):
-    print(cfg.log_switch)
     if cfg.log_switch == 'open':
-        print('ok')
         file_dir = path.join(cfg.curr_dir, 'log', cfg.formatted_today + '.txt')
         formatted_time = time.strftime(
             "%Y-%m-%d %H:%M:%S", time.localtime(time.time()))
@@ -34,5 +32,3 @@ def logit(content, shown=True):
             f.write(content + ' ' + formatted_time + '\n')
             if shown:
                 pw_put_text(content + ' ' + formatted_time + '\n')
-    else:
-        print('not')
