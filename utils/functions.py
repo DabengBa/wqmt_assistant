@@ -172,6 +172,8 @@ def comp_tap(
     times=1,
     success="success",
     fail="fail",
+    retry=True,
+    retry_wait=3,
 ):
     log.logit(
         f"comp_tap收到指令 {tgt_pic}{tgt_txt} {threshold} {sleep_time} {times}，开始查找", False
@@ -181,9 +183,9 @@ def comp_tap(
         sleep_time = cfg.sleep_time
 
     if tgt_pic:
-        center = comp_pic_xy(tgt_pic, threshold)
+        center = comp_pic_xy(tgt_pic, threshold, success, fail, retry, retry_wait)
     if tgt_txt:
-        center = comp_txt_xy(tgt_txt, threshold)
+        center = comp_txt_xy(tgt_txt, threshold, success, fail, retry, retry_wait)
     
     if center:
         x, y = center
@@ -207,7 +209,7 @@ def trans_pic_dir(name):
 
 
 def comp_pic_xy(tgt_pic, threshold=0.85, success="success", fail="fail", retry=True, retry_wait=3):
-    log.logit(f"comp_pic_xy收到指令 {tgt_pic} {threshold}，开始查找坐标", False)
+    log.logit(f"comp_pic_xy收到指令 {tgt_pic} {threshold}，{retry}, 开始查找坐标", False)
     
     tgt_pic_dir = trans_pic_dir(tgt_pic)
     retry_times = 10 if retry else 1

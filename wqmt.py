@@ -37,7 +37,7 @@ def homequit():
     else:
         log.logit("尝试从home按钮退出失败, 点击右下角退出潜在弹窗")
         click_screen(0.916, 0.935)
-        comp_tap(tgt_pic="homequit", sleep_time=5, success="已点击返回home", fail="", retry=False)
+        comp_tap(tgt_pic="homequit", sleep_time=5, success="已点击返回home", fail="", retry_wait=0.5)
 
 
 def wqmtstart():  # 连接设备，失败则报错
@@ -96,15 +96,13 @@ def starttohome():  # 启动到home
             else:
                 log.logit("开始：检查月卡提示")
                 comp_tap(
-                    tgt_pic="cancell", success="@@@@@@@已经取消月卡购买界面，请之后注意补充@@@@", fail="", retry=False
-                )
+                    tgt_pic="cancell", success="@@@@@@@已经取消月卡购买界面，请之后注意补充@@@@", fail="")
                 log.logit("结束：检查月卡提示")
                 log.logit("点击右下角退出潜在弹窗")
                 [click_screen(0.916, 0.935) for i in range(2)]
                 log.logit("开始：检查工会战提示")
                 comp_tap(
-                    tgt_pic="confirm", success="@@@@@@@已经取消公会战提醒，请之后记得参加@@@@", fail="", retry=False
-                )
+                    tgt_pic="confirm", success="@@@@@@@已经取消公会战提醒，请之后记得参加@@@@", fail="")
                 log.logit("结束：检查工会战提示")
                 log.logit("点击右下角退出潜在弹窗")
                 [click_screen(0.916, 0.935) for i in range(2)]
