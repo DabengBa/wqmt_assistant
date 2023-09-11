@@ -9,6 +9,5 @@ remote_dir: /sdcard/screenshot.png # 部分模拟器存储截图的位置不同,
 device_name2: 127.0.0.1:16384
 
 # 程序自动配置, 勿动
-curr_dir: C:\Software\DEV\wqmt_assistant
 saved_selections:
 - 管理局
