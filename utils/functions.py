@@ -92,7 +92,6 @@ def adb_cap_scrn():
         stdout=DEVNULL,
         stderr=DEVNULL,
     )
-    log.logit(f"开始将截图文件拉到本地{cfg.scrn_dir}", False)
     adb_run(
         [cfg.adb_dir, "-s", cfg.device_name, "pull", cfg.remote_dir, cfg.scrn_dir],
         stdout=DEVNULL,
@@ -168,7 +167,7 @@ def trans_percent_to_xy(x, y, xx=0, yy=0):
 def comp_tap(
     tgt_pic="",
     tgt_txt="",
-    threshold=0.8,
+    threshold=0.85,
     sleep_time=None,
     times=1,
     success="success",
@@ -178,11 +177,14 @@ def comp_tap(
         f"comp_tap收到指令 {tgt_pic}{tgt_txt} {threshold} {sleep_time} {times}，开始查找", False
     )
 
-    center = comp_xy(tgt_pic, tgt_txt, threshold)
-
     if sleep_time is None:
         sleep_time = cfg.sleep_time
 
+    if tgt_pic:
+        center = comp_pic_xy(tgt_pic, threshold)
+    if tgt_txt:
+        center = comp_txt_xy(tgt_txt, threshold)
+    
     if center:
         x, y = center
         click_coords = [str(coord) for coord in [x, y]]
@@ -193,12 +195,10 @@ def comp_tap(
         return (x, y)
 
     log.logit(f"{fail}, 没找到 {tgt_pic}{tgt_txt}", False)
-    sleep(sleep_time)
     return None
 
 
 # 图像/文字识别
-
 
 def trans_pic_dir(name):
     pic_dir = path.join(cfg.curr_dir, "Target", cfg.prog_Name, f"{name}.png")
@@ -206,32 +206,45 @@ def trans_pic_dir(name):
     return pic_dir
 
 
-def comp_xy(tgt_pic="", tgt_txt="", threshold=0.8, success="success", fail="fail"):
-    log.logit(f"comp_xy收到指令 {tgt_pic}{tgt_txt} {threshold}，开始查找坐标", False)
+def comp_pic_xy(tgt_pic, threshold=0.85, success="success", fail="fail", retry=True, retry_wait=3):
+    log.logit(f"comp_pic_xy收到指令 {tgt_pic} {threshold}，开始查找坐标", False)
+    
+    tgt_pic_dir = trans_pic_dir(tgt_pic)
+    retry_times = 10 if retry else 1
 
-    adb_cap_scrn()
-    scrn_dir = cfg.scrn_dir
-    ocr_dir = cfg.ocr_dir
+    for i in range(retry_times):
+        log.logit(f"开始第{i+1}次图像匹配 {tgt_pic}")
+        sleep(retry_wait)
+        adb_cap_scrn()
+        scrn_dir = cfg.scrn_dir
 
-    if tgt_pic:
-        log.logit(f"开始图像匹配 {tgt_pic}")
-        tgt_pic_dir = trans_pic_dir(tgt_pic)
         img = cv2.imread(scrn_dir, 0)  # 屏幕图片
         template = cv2.imread(tgt_pic_dir, 0)  # 寻找目标
-        # 相关系数匹配方法：cv2.TM_CCOEFF
         res = cv2.matchTemplate(img, template, cv2.TM_CCOEFF_NORMED)
         _, max_val, _, max_loc = cv2.minMaxLoc(res)
+
         log.logit(f"{tgt_pic} 图像匹配结果 {max_val} {max_loc}", False)
-        x, y = max_loc[0] + template.shape[1] // 2, max_loc[1] + template.shape[0] // 2
+
         if max_val > threshold:
+            x, y = max_loc[0] + template.shape[1] // 2, max_loc[1] + template.shape[0] // 2
             log.logit(f"{success}, 根据图像匹配结果返回 {x} {y}")
             return (x, y)
         else:
-            log.logit(f"{fail}, 图像匹配失败")
-            return None
+            log.logit(f"{fail}, 图像匹配失败 {tgt_pic}")
+    return None
 
-    if tgt_txt:
-        log.logit(f"开始文字匹配 {tgt_txt}")
+
+def comp_txt_xy(tgt_txt, threshold=0.8, success="success", fail="fail", retry=True, retry_wait=3):
+    log.logit(f"comp_pic_xy收到指令 {tgt_txt} {threshold}，开始查找坐标", False)
+    retry_times = 10 if retry else 1
+
+    for i in range(retry_times):
+        log.logit(f"开始第{i+1}次文字匹配 {tgt_txt}")
+        sleep(retry_wait)
+        adb_cap_scrn()
+        scrn_dir = cfg.scrn_dir
+        ocr_dir = cfg.ocr_dir
+
         ocr = GetOcrApi(ocr_dir)  # PaddleOCR API
         res = ocr.run(scrn_dir)
         for data_dict in res["data"]:
@@ -240,7 +253,8 @@ def comp_xy(tgt_pic="", tgt_txt="", threshold=0.8, success="success", fail="fail
                 box_data = data_dict["box"]  # 获取box数据
                 x = (box_data[0][0] + box_data[2][0]) / 2  # 计算X坐标
                 y = (box_data[0][1] + box_data[2][1]) / 2  # 计算Y坐标
-                log.logit(f"根据文字匹配结果返回 {x} {y}")
+                log.logit(f"{success}, 根据文字匹配结果返回 {x} {y}")
                 return (x, y)
-        log.logit(f"文字匹配失败 {tgt_txt}", F)
-        return None
+            else:
+                log.logit(f"{fail}, 文字匹配失败 {tgt_txt}", )
+    return None

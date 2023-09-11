@@ -7,20 +7,19 @@ import utils.log as log
 
 def rouge():
     log.logit("开始：刷肉鸽")
-    comp_tap(tgt_pic="rouge000_ico", sleep_time=3)
+    comp_tap(tgt_pic="rouge000_ico")
     count = 1
     while True:
         log.logit(f"开始第{count}次")
         comp_tap(
-            tgt_pic="rouge001_entry", fail="没有找到肉鸽入口，请确保已经进到有“进入探索”的界面", sleep_time=3
-        )
-        comp_tap(tgt_pic="rouge002_nextstep", sleep_time=3)
-        comp_tap(tgt_pic="rouge003_start", sleep_time=6)
-        click_screen(0.35, 0.5, sleep_time=1)
-        comp_tap(tgt_pic="rouge004_confirmselection", sleep_time=2, times=2)
-        click_screen(0.04, 0.06, sleep_time=1)
-        comp_tap(tgt_pic="rouge005_termination", sleep_time=2, times=2)
-        comp_tap(tgt_pic="rouge006_quit", sleep_time=4)
+            tgt_pic="rouge001_entry", fail="没有找到肉鸽入口，请确保已经进到有“进入探索”的界面")
+        comp_tap(tgt_pic="rouge002_nextstep")
+        comp_tap(tgt_pic="rouge003_start", sleep_time=5)
+        click_screen(0.35, 0.5)
+        comp_tap(tgt_pic="rouge004_confirmselection", sleep_time=5)
+        click_screen(0.04, 0.06)
+        comp_tap(tgt_pic="rouge005_termination", times=2)
+        comp_tap(tgt_pic="rouge006_quit")
         count += 1
 
 
@@ -51,12 +50,12 @@ def wqmtstart():  # 连接设备，失败则报错
         stdout=PIPE,
         stderr=PIPE,
     )
-    sleep(10)
+    sleep(12)
 
 
 def panelcheck():
     log.logit("开始：检查面板")
-    if comp_xy(tgt_pic="friend1", fail="检测到面板未展开，尝试点击展开面板"):
+    if comp_pic_xy(tgt_pic="friend1", fail="检测到面板未展开，尝试点击展开面板", retry=False):
         pass
     else:
         click_screen(0.683, 0.53, sleep_time=2)  # 展开面板
@@ -66,7 +65,7 @@ def panelcheck():
 
 def starttohome():  # 启动到home
     log.logit("开始：启动, 检查系统公告")
-    if comp_xy(tgt_pic="caigouban1", threshold=0.95):  # 看看是不是已经进入主界面了
+    if comp_pic_xy(tgt_pic="caigouban1", threshold=0.95, retry=False):  # 看看是不是已经进入主界面了
         pass
     else:
         while True:
@@ -77,30 +76,29 @@ def starttohome():  # 启动到home
             else:
                 log.logit("没有找到开始游戏按钮，尝试启动app及检查系统公告, 等待10秒")
                 wqmtstart()  # 启动无期迷途
-                center = comp_tap(tgt_pic="start1", sleep_time=2, success="发现系统公告")
+                center = comp_pic_xy(tgt_pic="start1", success="发现系统公告", retry=False)
                 if center:
                     click_screen(0.97, 0.5)  # 点击右侧边缘退出公告
-                sleep(4)  # 等待后检查“开始游戏”
         log.logit("等待16秒-->等待游戏完全进入主页面")
         sleep(16)
         log.logit("点击右下角退出潜在弹窗")
         [click_screen(0.916, 0.935) for i in range(2)]
 
         while True:
-            center = comp_xy(tgt_pic="fuben1")
+            center = comp_pic_xy(tgt_pic="fuben1", retry=False)
             if center:
                 break
             else:
                 log.logit("开始：检查月卡提示")
                 comp_tap(
-                    tgt_pic="cancell", success="@@@@@@@已经取消月卡购买界面，请之后注意补充@@@@", fail=""
+                    tgt_pic="cancell", success="@@@@@@@已经取消月卡购买界面，请之后注意补充@@@@", fail="", retry=False
                 )
                 log.logit("结束：检查月卡提示")
                 log.logit("点击右下角退出潜在弹窗")
                 [click_screen(0.916, 0.935) for i in range(2)]
                 log.logit("开始：检查工会战提示")
                 comp_tap(
-                    tgt_pic="confirm", success="@@@@@@@已经取消公会战提醒，请之后记得参加@@@@", fail=""
+                    tgt_pic="confirm", success="@@@@@@@已经取消公会战提醒，请之后记得参加@@@@", fail="", retry=False
                 )
                 log.logit("结束：检查工会战提示")
                 log.logit("点击右下角退出潜在弹窗")
@@ -169,7 +167,6 @@ def Bureau():
     topquit()
 
     log.logit("尝试派遣")
-    adb_cap_scrn()
     click_screen(0.44, 0.742, sleep_time=2)
     [click_screen(0.105, 0.707, sleep_time=3) for i in range(4)]
     log.logit("完成派遣")
@@ -180,8 +177,7 @@ def Bureau():
 def friends():  # 朋友
     log.logit("开始：拜访朋友")
     panelcheck()
-    comp_tap(tgt_pic="friend1", sleep_time=2)
-    adb_cap_scrn()
+    comp_tap(tgt_pic="friend1", sleep_time=5)
     [click_screen(0.869, 0.855, sleep_time=1) for i in range(3)]
     homequit()
     log.logit("完成：朋友拜访")
@@ -191,7 +187,6 @@ def construction():  # 基建
     log.logit("开始：基建")
     panelcheck()
     click_screen(0.844, 0.629, sleep_time=3)
-    adb_cap_scrn()
     log.logit("开始收菜")
     [click_screen(0.096, 0.373, sleep_time=2) for i in range(3)]  # 收菜
     log.logit("开始聊天")
@@ -225,15 +220,14 @@ def raidriver():  # 锈河
     click_screen(0.17, 0.92, sleep_time=3)
 
     comp_tap(tgt_pic="fuben2", sleep_time=2, success="尝试打开记忆风暴")
-    adb_cap_scrn()
     click_screen(0.835, 0.682, sleep_time=2)
 
-    comp_tap(tgt_pic="fubensaodang", sleep_time=2, success="尝试点击连续扫荡")
-    comp_tap(tgt_pic="fubensaodangkaishi", sleep_time=6, success="尝试点击开始")
-    center = comp_tap(tgt_pic="done", sleep_time=2, success="尝试点击完成")
+    comp_tap(tgt_pic="fubensaodang", success="尝试点击连续扫荡")
+    comp_tap(tgt_pic="fubensaodangkaishi",success="尝试点击开始")
+    center = comp_tap(tgt_pic="done", success="尝试点击完成")
 
     if center is None:
-        comp_tap(tgt_pic="cancell", sleep_time=2, success="次数用光，取消扫荡")
+        comp_tap(tgt_pic="cancell", success="次数用光，取消扫荡")
 
     topquit()
     homequit()
@@ -249,7 +243,7 @@ def raid11():  # 刷11章
     click_screen(0.078, 0.541, sleep_time=2)  # 点击11-6
     comp_tap(tgt_pic="fubensaodang", sleep_time=2, success="尝试点击连续扫荡")
     [click_screen(0.712, 0.683) for i in range(6)]  # 点击+号
-    comp_tap(tgt_pic="fubensaodangkaishi", sleep_time=12, success="尝试点击开始")
+    comp_tap(tgt_pic="fubensaodangkaishi", success="尝试点击开始")
     comp_tap(tgt_pic="done", sleep_time=2, success="尝试点击完成")
     homequit()
     log.logit("结束：raid任务")
@@ -270,7 +264,7 @@ def raiddark():  ## 深井
                 tgt_pic="fuben4-1", threshold=0.85, sleep_time=3, success="非乐园副本，切换页面"
             )
     topquit()
-    homequit()
+    homequit()``
     log.logit("完成：深井扫荡")
 
 
