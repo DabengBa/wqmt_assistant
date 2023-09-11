@@ -31,8 +31,13 @@ def topquit():
 
 def homequit():
     log.logit("开始：尝试从home按钮退出")
-    comp_tap(tgt_pic="homequit", sleep_time=5, success="已点击返回home", fail="")
-    log.logit("完成：尝试从home按钮退出")
+    center = comp_tap(tgt_pic="homequit", sleep_time=5, success="已点击返回home", fail="", retry_wait=0.5)
+    if center:
+        log.logit("完成：尝试从home按钮退出")
+    else:
+        log.logit("尝试从home按钮退出失败, 点击右下角退出潜在弹窗")
+        click_screen(0.916, 0.935)
+        comp_tap(tgt_pic="homequit", sleep_time=5, success="已点击返回home", fail="", retry=False)
 
 
 def wqmtstart():  # 连接设备，失败则报错
@@ -264,7 +269,7 @@ def raiddark():  ## 深井
                 tgt_pic="fuben4-1", threshold=0.85, sleep_time=3, success="非乐园副本，切换页面"
             )
     topquit()
-    homequit()``
+    homequit()
     log.logit("完成：深井扫荡")
 
 
