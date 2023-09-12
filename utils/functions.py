@@ -20,244 +20,168 @@ def get_time():
     time_stamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     return time_stamp
 
-
-# ADB
-# ADB-连接
-
-
-def adb_disconnect():  # 断开设备
-    adb_run(
-        [cfg.adb_dir, "disconnect", cfg.device_name], stdout=DEVNULL, stderr=DEVNULL
-    )
-
-
-def adb_connect():  # 连接设备，失败则报错
-    result = adb_run(
-        [cfg.adb_dir, "connect", cfg.device_name], stdout=PIPE, stderr=PIPE
-    )
-    if "cannot" in result.stdout.decode():
-        log.logit(f"连接模拟器失败，请见检查congfig.yaml中device_name的配置")
-    else:
-        log.logit(f"连接模拟器成功")
-
-
-# ADB-屏幕控制
-# ADB-屏幕控制-随机数
-
-
-def gen_ran_xy(x, y, xx=0, yy=0):
-    # 根据xy数值，在一个12px的区间内生成新的正态分布数值，如果超过12px则重新生成
-    log.logit(f"接收坐标 {x} {y} {xx} {yy}，准备生成随机坐标", False)
-    while True:
-        # 生成均值为x和y的正态分布随机数
-        coords = [round(rd.normalvariate(coord, 6), 2) for coord in [x, y]]
-
-        if xx != 0:
-            # 生成均值为xx和yy的正态分布随机数
-            coords.extend([round(rd.normalvariate(coord, 6), 2) for coord in [xx, yy]])
-
-        if all(
-            abs(coord_1 - coord_2) <= 12
-            for coord_1, coord_2 in zip([x, y, xx, yy], coords)
-        ) and all(coord > 0 for coord in coords):
-            break
-
-    log.logit(f"生成了符合要求的随机坐标 {' '.join(map(str, coords))}", False)
-    return tuple(coords)
-
-
-def gen_ran_time(time=None):
-    log.logit(f"收到时间 {time} 准备生成随机时间", False)
-    if time is None:
-        time = cfg.sleep_time
-        log.logit(f"因为时间为None，赋值为{cfg.sleep_time}", False)
-    for _ in range(15):
-        mtime = round(rd.normalvariate(time, time * 0.3), 2)
-        if time < mtime < time * 1.3:
-            log.logit(f"根据 {time} 生成随机时间 {mtime}", False)
-            if rd.random() > 0.85:
-                mtime += 1
-                log.logit(f"遇到了15%的随机事件，随机时间调整为 {mtime}", False)
-            return mtime
-    log.logit(f"根据 {time} 在指定次数内没有生成符合要求的新时间，将返回2", False)
-    return 2
-
-
-# ADB-屏幕控制-执行
-
-
-def adb_cap_scrn():
-    log.logit(f"开始屏幕截图，尝试保存到{cfg.remote_dir}", False)
-    adb_run(
-        [cfg.adb_dir, "-s", cfg.device_name, "shell", "screencap", cfg.remote_dir],
-        stdout=DEVNULL,
-        stderr=DEVNULL,
-    )
-    adb_run(
-        [cfg.adb_dir, "-s", cfg.device_name, "pull", cfg.remote_dir, cfg.scrn_dir],
-        stdout=DEVNULL,
-        stderr=DEVNULL,
-    )
-    if cfg.log_switch == "open":
-        pw_put_image(open(cfg.scrn_dir, "rb").read(), width="500px")
-    log.logit(f"完成截图, 保存到{cfg.scrn_dir}", False)
-
-
-def swipe_screen(x, y, xx, yy, sleep_time=None):
-    log.logit(f"收到坐标 {x} {y} {xx} {yy}，{sleep_time}准备滑动屏幕", False)
-
-    if sleep_time is None:
-        sleep_time = cfg.sleep_time
-        log.logit(f"因为时间为None，赋值为{cfg.sleep_time}", False)
-    if x < 1:
-        log.logit(f"收到百分比坐标，将传入trans转换成px", False)
-        x, y, xx, yy = trans_percent_to_xy(x, y, xx, yy)
-
-    x, y, xx, yy = gen_ran_xy(x, y, xx, yy)
-    swipe_coords = [str(coord) for coord in [x, y, xx, yy]]
-    time_gap = gen_ran_time(sleep_time)
-
-    log.logit(f"开始通过adb滑动屏幕", False)
-    adb_run(
-        ["adb", "-s", cfg.device_name, "shell", "input", "touchscreen", "swipe"]
-        + swipe_coords
-    )
-
-    log.logit(f"滑动坐标{swipe_coords}完成，将休息{time_gap}秒", False)
-    sleep(time_gap)
-
-
-def click_screen(x, y, sleep_time=None):
-    log.logit(f"收到坐标 {x} {y}，{sleep_time}准备点击屏幕", False)
-
-    if sleep_time is None:
-        sleep_time = cfg.sleep_time
-
-    if x < 1:
-        x, y = trans_percent_to_xy(x, y)
-
-    x, y = gen_ran_xy(x, y)
-    click_coords = [str(coord) for coord in [x, y]]
-    time_gap = gen_ran_time(sleep_time)
-
-    log.logit(f"开始通过adb滑动屏幕", False)
-    adb_run(
-        [cfg.adb_dir, "-s", cfg.device_name, "shell", "input", "tap"] + click_coords
-    )
-    log.logit(f"点击坐标{click_coords}，将休息{time_gap}秒", False)
-
-    sleep(time_gap)
-
-
-def trans_percent_to_xy(x, y, xx=0, yy=0):
-    log.logit(f"根据百分比转换 {x} {y} {xx} {yy}", False)
-
-    x = round(cfg.width * x, 2)
-    y = round(cfg.height * y, 2)
-    xx = round(cfg.width * xx, 2)
-    yy = round(cfg.height * yy, 2)
-
-    if xx == 0:
-        coord = (x, y)
-    else:
-        coord = (x, y, xx, yy)
-    log.logit(f"得到转换后的坐标为 {x} {y} {xx} {yy}", False)
-    return coord
-
-
-def comp_tap(
-    tgt_pic="",
-    tgt_txt="",
-    threshold=0.85,
-    sleep_time=None,
-    times=1,
-    success="success",
-    fail="fail",
-    retry=True,
-    retry_wait=3,
-):
-    log.logit(
-        f"comp_tap收到指令 {tgt_pic}{tgt_txt} {threshold} {sleep_time} {times}，开始查找", False
-    )
-
-    if sleep_time is None:
-        sleep_time = cfg.sleep_time
-
-    if tgt_pic:
-        center = comp_pic_xy(tgt_pic, threshold, retry=retry, retry_wait=retry_wait)
-    if tgt_txt:
-        center = comp_txt_xy(tgt_txt, threshold, retry=retry, retry_wait=retry_wait)
-    
-    if center:
-        x, y = center
-        click_coords = [str(coord) for coord in [x, y]]
-        log.logit(f"{success}, 找到 {tgt_pic}{tgt_txt}，坐标{click_coords}", False)
-        for _ in range(times):  # 在目标位置重复点击，用于收菜之后再确认一下
-            click_screen(x, y)
-            sleep(sleep_time)
-        return (x, y)
-
-    log.logit(f"{fail}, 没找到 {tgt_pic}{tgt_txt}", False)
-    return None
-
-
-# 图像/文字识别
-
-def trans_pic_dir(name):
-    pic_dir = path.join(cfg.curr_dir, "Target", cfg.prog_Name, f"{name}.png")
-    log.logit(f"trans生成图片路径为 {pic_dir}", False)
-    return pic_dir
-
-
-def comp_pic_xy(tgt_pic, threshold=0.85, success="success", fail="fail", retry=True, retry_wait=3):
-    log.logit(f"comp_pic_xy收到指令 {tgt_pic} {threshold}，{retry}, 开始查找坐标", False)
-    
-    tgt_pic_dir = trans_pic_dir(tgt_pic)
-    retry_times = 10 if retry else 1
-
-    for i in range(retry_times):
-        log.logit(f"开始第{i+1}次图像匹配 {tgt_pic}")
-        sleep(retry_wait)
-        adb_cap_scrn()
-        scrn_dir = cfg.scrn_dir
-
-        img = cv2.imread(scrn_dir, 0)  # 屏幕图片
-        template = cv2.imread(tgt_pic_dir, 0)  # 寻找目标
-        res = cv2.matchTemplate(img, template, cv2.TM_CCOEFF_NORMED)
-        _, max_val, _, max_loc = cv2.minMaxLoc(res)
-
-        log.logit(f"{tgt_pic} 图像匹配结果 {max_val} {max_loc}", False)
-
-        if max_val > threshold:
-            x, y = max_loc[0] + template.shape[1] // 2, max_loc[1] + template.shape[0] // 2
-            log.logit(f"{success}, 根据图像匹配结果返回 {x} {y}")
-            return (x, y)
+class getxy:
+    def __init__(
+        self,
+        tgt_pic="",
+        tgt_text="",
+        threshold=0.85,
+        success_msg="success",
+        fail_msg="fail",
+        retry_enabled=True,
+        retry_wait_seconds=3.0,
+        x=0,
+        y=0,
+        xx=0,
+        yy=0,
+    ):
+        self.tgt_pic = tgt_pic
+        self.tgt_pic_dir = str(path.join(cfg.curr_dir, "Target", cfg.prog_Name, f"{self.tgt_pic}.png"))
+        self.tgt_text = str(tgt_text)
+        self.threshold = float(threshold)
+        self.success_msg = str(success_msg)
+        self.fail_msg = str(fail_msg)
+        self.retry_enabled = bool(retry_enabled)
+        self.retry_times = int(10) if self.retry_enabled else int(1)
+        self.retry_wait_seconds = float(retry_wait_seconds)
+        self.x = float(x)
+        self.y = float(y)
+        self.xx = float(xx)
+        self.yy = float(yy)
+        log.logit(
+            f"收到指令 {self.tgt_pic}{self.tgt_text}, 目标置信度{self.threshold}, 自动重试{self.retry_times}次{self.retry_enabled}, 默认延迟{self.retry_wait_seconds} 开始查找坐标。 ",
+            False,
+        )
+        if self.tgt_pic:
+            self.comp_pic_xy()
+        if self.tgt_text:
+            self.comp_txt_xy()
+        if self.x != 0:
+            self.gen_ran_xy()
         else:
-            log.logit(f"{fail}, 图像匹配失败 {tgt_pic}")
-    return None
+            self.coords = None
+    
+    def gen_ran_xy(self):
+        # 根据xy数值，在一个12px的区间内生成新的正态分布数值，如果超过12px则重新生成
+        if self.x < 1:
+            self.x = round(cfg.width * self.x, 2)
+            self.y = round(cfg.height * self.y, 2)
+            self.xx = round(cfg.width * self.xx, 2)
+            self.yy = round(cfg.height * self.yy, 2)
+        while True:
+            # generate coordinates xy
+            self.coords = [round(rd.normalvariate(coord, 6), 2) for coord in [self.x, self.y]]
+            self.x, self.y = self.coords
+            # generate coordinates xx,yy
+            if self.xx != 0:  
+                self.coords.extend([round(rd.normalvariate(coord, 6), 2) for coord in [self.xx, self.yy]])
+                self.x, self.y, self.xx, self.yy = self.coords
+            # check if the coordinates are valid
+            if all(
+                abs(coord_1 - coord_2) <= 12
+                for coord_1, coord_2 in zip([self.x, self.y, self.xx, self.yy], self.coords)
+            ) and all(coord > 0 for coord in self.coords):
+                break
+        log.logit(f"生成了符合要求的随机坐标 {' '.join(map(str, self.coords))}", False)
 
 
-def comp_txt_xy(tgt_txt, threshold=0.8, success="success", fail="fail", retry=True, retry_wait=3):
-    log.logit(f"comp_pic_xy收到指令 {tgt_txt} {threshold}，开始查找坐标", False)
-    retry_times = 10 if retry else 1
+    def cap_scrn(self):
+        adb.cap_scrn()
+        if cfg.log_switch == "open":
+            pw_put_image(open(cfg.scrn_dir, "rb").read(), width="500px")
+        log.logit(f"完成截图, 保存到{cfg.scrn_dir}", False)
 
-    for i in range(retry_times):
-        log.logit(f"开始第{i+1}次文字匹配 {tgt_txt}")
-        sleep(retry_wait)
-        adb_cap_scrn()
-        scrn_dir = cfg.scrn_dir
-        ocr_dir = cfg.ocr_dir
+    def comp_txt_xy(self):
+        
+        for i in range(self.retry_times):
+            log.logit(f"开始第{i+1}次文字匹配, 目标{self.tgt_txt}")
+            sleep(self.retry_wait_seconds)
+            self.cap_scrn()
 
-        ocr = GetOcrApi(ocr_dir)  # PaddleOCR API
-        res = ocr.run(scrn_dir)
-        for data_dict in res["data"]:
-            log.logit(f"文字匹配结果 {data_dict}", False)
-            if data_dict["text"] == tgt_txt:
-                box_data = data_dict["box"]  # 获取box数据
-                x = (box_data[0][0] + box_data[2][0]) / 2  # 计算X坐标
-                y = (box_data[0][1] + box_data[2][1]) / 2  # 计算Y坐标
-                log.logit(f"{success}, 根据文字匹配结果返回 {x} {y}")
-                return (x, y)
+            ocr = GetOcrApi(cfg.ocr_dir)  # PaddleOCR API
+            res = ocr.run(cfg.scrn_dir)
+            for data_dict in res["data"]:
+                log.logit(f"文字匹配结果 {data_dict}", False)
+                if data_dict["text"] == self.tgt_txt:
+                    box_data = data_dict["box"]  # 获取box数据
+                    self.x = (box_data[0][0] + box_data[2][0]) / 2  # 计算X坐标
+                    self.y = (box_data[0][1] + box_data[2][1]) / 2  # 计算Y坐标
+                    log.logit(f"{self.success_msg}, 根据文字匹配结果返回 {self.x} {self.y}")
+                    return self
+                else:
+                    log.logit(
+                        f"{self.fail_msg}, 文字匹配失败 {self.tgt_txt}",
+                    )
+        return self
+
+    def comp_pic_xy(self):
+
+        for i in range(self.retry_times):
+            log.logit(f"开始第{i+1}次图像匹配, 目标 {self.tgt_pic}")
+            sleep(self.retry_wait_seconds)
+            self.cap_scrn()
+
+            img = cv2.imread(cfg.scrn_dir, 0)  # 屏幕图片
+            template = cv2.imread(self.tgt_pic_dir, 0)  # 寻找目标
+            #*debug print(cfg.scrn_dir)
+            #*debug print(self.tgt_pic_dir)
+            res = cv2.matchTemplate(img, template, cv2.TM_CCOEFF_NORMED)
+            _, max_val, _, max_loc = cv2.minMaxLoc(res)
+
+            log.logit(f"{self.tgt_pic} 图像匹配结果 {max_val} {max_loc}", False)
+
+            if max_val > self.threshold:
+                self.x, self.y = (
+                    max_loc[0] + template.shape[1] // 2,
+                    max_loc[1] + template.shape[0] // 2,
+                )
+                log.logit(f"{self.success_msg}, 根据图像匹配结果返回 {self.x} {self.y}")
+                return self
             else:
-                log.logit(f"{fail}, 文字匹配失败 {tgt_txt}", )
-    return None
+                log.logit(f"{self.fail_msg}, 图像匹配失败 {self.tgt_pic}")
+    
+    def click(self, time_gap=None):
+        scrn_ctrl().click(self.x, self.y, time_gap)
+
+class scrn_ctrl:
+    def __init__(self):
+        pass
+
+    def gen_ran_time(self, time_gap=None):
+        log.logit(f"收到时间 {time_gap} 准备生成随机时间", False)
+        if time_gap is None:
+            time_gap = cfg.sleep_time
+            log.logit(f"因为时间为None，赋值为{cfg.sleep_time}", False)
+        for _ in range(25):
+            mtime = round(rd.normalvariate(time_gap, time_gap * 0.3), 2)
+            if time_gap < mtime < time_gap * 1.3:
+                log.logit(f"根据 {time_gap} 生成随机时间 {mtime}", False)
+                if rd.random() > 0.85:
+                    mtime += 1
+                    log.logit(f"遇到了15%的随机事件，随机时间调整为 {mtime}", False)
+                self.time_gap = mtime
+        log.logit(f"根据 {time_gap} 在指定次数内没有生成符合要求的新时间，将返回2", False)
+        self.time_gap = 2
+
+    def get_coords(self, x, y,xx=0,yy=0):  
+        self.coords1 = getxy(x=x, y=y).coords
+        self.x = self.coords1[0]
+        self.y = self.coords1[1]
+        if xx != 0:
+            self.coords2 = getxy(x=xx, y=yy).coords
+            self.xx = self.coords2[0]
+            self.yy = self.coords2[1]
+
+    def click(self, x, y, time_gap=None):
+        self.get_coords(x=x, y=y)
+        self.gen_ran_time(time_gap=time_gap)
+        log.logit(f"收到坐标 {self.coords1}, 休眠{self.time_gap}点击屏幕", False)
+        adb.touch(self.x, self.y)
+        sleep(self.time_gap)
+
+    def swipe(self,x, y, xx, yy, time_gap=None):
+        self.get_coords(x=x, y=y, xx=xx, yy=yy)
+        self.gen_ran_time(time_gap=time_gap)
+        log.logit(f"收到坐标 {self.coords1} {self.coords2}, 间隔{self.time_gap}准备滑动屏幕", False)
+        adb.touch(self.x, self.y, self.xx, self.yy)
+        sleep(self.time_gap)

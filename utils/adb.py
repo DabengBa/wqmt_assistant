@@ -42,3 +42,19 @@ def connect():  # 连接设备，失败则报错
         log.logit(f"连接模拟器失败，请见检查congfig.yaml中device_name的配置")
     else:
         log.logit(f"连接模拟器成功")
+
+def start(app):
+    adb_run(
+        [
+            cfg.adb_dir,
+            "-s",
+            cfg.device_name,
+            "shell",
+            "am",
+            "start",
+            "-n",
+            app,
+        ],
+        stdout=PIPE,
+        stderr=PIPE,
+    )
