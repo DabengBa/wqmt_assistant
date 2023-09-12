@@ -13,6 +13,7 @@ import cv2
 from .PPOCR_api import GetOcrApi
 import utils.config as cfg
 import utils.log as log
+import utils.adb as adb
 
 
 def get_time():
@@ -45,18 +46,18 @@ def adb_connect():  # 连接设备，失败则报错
 
 
 def gen_ran_xy(x, y, xx=0, yy=0):
-    # 根据xy数值，在一个15px的区间内生成新的正态分布数值，如果超过15px则重新生成
+    # 根据xy数值，在一个12px的区间内生成新的正态分布数值，如果超过12px则重新生成
     log.logit(f"接收坐标 {x} {y} {xx} {yy}，准备生成随机坐标", False)
     while True:
         # 生成均值为x和y的正态分布随机数
-        coords = [round(rd.normalvariate(coord, 7), 2) for coord in [x, y]]
+        coords = [round(rd.normalvariate(coord, 6), 2) for coord in [x, y]]
 
         if xx != 0:
             # 生成均值为xx和yy的正态分布随机数
-            coords.extend([round(rd.normalvariate(coord, 7), 2) for coord in [xx, yy]])
+            coords.extend([round(rd.normalvariate(coord, 6), 2) for coord in [xx, yy]])
 
         if all(
-            abs(coord_1 - coord_2) <= 15
+            abs(coord_1 - coord_2) <= 12
             for coord_1, coord_2 in zip([x, y, xx, yy], coords)
         ) and all(coord > 0 for coord in coords):
             break
@@ -183,9 +184,9 @@ def comp_tap(
         sleep_time = cfg.sleep_time
 
     if tgt_pic:
-        center = comp_pic_xy(tgt_pic, threshold, success, fail, retry, retry_wait)
+        center = comp_pic_xy(tgt_pic, threshold, retry=retry, retry_wait=retry_wait)
     if tgt_txt:
-        center = comp_txt_xy(tgt_txt, threshold, success, fail, retry, retry_wait)
+        center = comp_txt_xy(tgt_txt, threshold, retry=retry, retry_wait=retry_wait)
     
     if center:
         x, y = center
