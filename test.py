@@ -30,7 +30,7 @@ class getxy:
         yy=0,
     ):
         self.tgt_pic = tgt_pic
-        self.tgt_pic_dir = str(path.join(cfg.curr_dir, "Target", cfg.prog_Name, f"{tgt_pic}.png"))
+        self.tgt_pic_dir = str(path.join(cfg.curr_dir, "Target", cfg.prog_Name, f"{self.tgt_pic}.png"))
         self.tgt_text = str(tgt_text)
         self.threshold = float(threshold)
         self.success_msg = str(success_msg)
@@ -50,7 +50,10 @@ class getxy:
             self.comp_pic_xy()
         if self.tgt_text:
             self.comp_txt_xy()
-        self.gen_ran_xy()
+        if self.x != 0:
+            self.gen_ran_xy()
+        else:
+            self.coords = None
     
     def gen_ran_xy(self):
         # 根据xy数值，在一个12px的区间内生成新的正态分布数值，如果超过12px则重新生成
@@ -97,10 +100,11 @@ class getxy:
                     box_data = data_dict["box"]  # 获取box数据
                     self.x = (box_data[0][0] + box_data[2][0]) / 2  # 计算X坐标
                     self.y = (box_data[0][1] + box_data[2][1]) / 2  # 计算Y坐标
-                    log.logit(f"{self.success}, 根据文字匹配结果返回 {x} {y}")
+                    log.logit(f"{self.success_msg}, 根据文字匹配结果返回 {self.x} {self.y}")
+                    return self
                 else:
                     log.logit(
-                        f"{self.fail}, 文字匹配失败 {self.tgt_txt}",
+                        f"{self.fail_msg}, 文字匹配失败 {self.tgt_txt}",
                     )
         return self
 
@@ -113,6 +117,8 @@ class getxy:
 
             img = cv2.imread(cfg.scrn_dir, 0)  # 屏幕图片
             template = cv2.imread(self.tgt_pic_dir, 0)  # 寻找目标
+            #*debug print(cfg.scrn_dir)
+            #*debug print(self.tgt_pic_dir)
             res = cv2.matchTemplate(img, template, cv2.TM_CCOEFF_NORMED)
             _, max_val, _, max_loc = cv2.minMaxLoc(res)
 
@@ -123,9 +129,10 @@ class getxy:
                     max_loc[0] + template.shape[1] // 2,
                     max_loc[1] + template.shape[0] // 2,
                 )
-                log.logit(f"{self.success}, 根据图像匹配结果返回 {self.x} {self.y}")
+                log.logit(f"{self.success_msg}, 根据图像匹配结果返回 {self.x} {self.y}")
+                return self
             else:
-                log.logit(f"{self.fail}, 图像匹配失败 {self.tgt_pic}")
+                log.logit(f"{self.fail_msg}, 图像匹配失败 {self.tgt_pic}")
     
     def click(self, time_gap=None):
         scrn_ctrl().click(self.x, self.y, time_gap)
@@ -173,7 +180,9 @@ class scrn_ctrl:
         adb.touch(self.x, self.y, self.xx, self.yy)
         sleep(self.time_gap)
 
-# print(getxy(x=0.5,y=0.3, xx=0.8, yy=0.1).coords)
-# print(scrn_ctrl(50,80).coords)
-
-getxy(tgt_pic="fuben1").click()
+adb.connect()
+center = getxy(tgt_pic="login",threshold=0.99, retry_enabled=False)
+if center.coords is not None:
+    print(center.coords)
+else:
+    print("fail")

@@ -7,6 +7,7 @@ from subprocess import run as adb_run, DEVNULL, PIPE
 
 # Private
 import utils.config as cfg
+import utils.log as log
 
 def touch(x, y, xx=0, yy=0):
     if xx != 0:
@@ -26,3 +27,18 @@ def cap_scrn():
         stdout=DEVNULL,
         stderr=DEVNULL,
     )
+
+def disconnect():  # 断开设备
+    adb_run(
+        [cfg.adb_dir, "disconnect", cfg.device_name], stdout=DEVNULL, stderr=DEVNULL
+    )
+
+
+def connect():  # 连接设备，失败则报错
+    result = adb_run(
+        [cfg.adb_dir, "connect", cfg.device_name], stdout=PIPE, stderr=PIPE
+    )
+    if "cannot" in result.stdout.decode():
+        log.logit(f"连接模拟器失败，请见检查congfig.yaml中device_name的配置")
+    else:
+        log.logit(f"连接模拟器成功")
