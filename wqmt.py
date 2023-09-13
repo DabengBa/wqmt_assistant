@@ -7,19 +7,19 @@ import utils.log as log
 
 def rouge():
     log.logit("开始：刷肉鸽")
-    getxy(tgt_pic="rouge000_ico").click()
+    Getxy(tgt_pic="rouge00_ico").click()
     count = 1
     while True:
         log.logit(f"开始第{count}次")
-        getxy(
-            tgt_pic="rouge001_entry", fail_msg="没有找到肉鸽入口，请确保已经进到有“进入探索”的界面").click()
-        getxy(tgt_pic="rouge002_nextstep").click()
-        getxy(tgt_pic="rouge003_start", timg_gap=5).click()
+        Getxy(
+            tgt_pic="rouge01_entry", fail_msg="没有找到肉鸽入口，请确保已经进到有“进入探索”的界面").click()
+        Getxy(tgt_pic="rouge02_nextstep").click()
+        Getxy(tgt_pic="rouge03_start", timg_gap=5).click()
         scrn_ctrl().click(0.35, 0.5)
-        getxy(tgt_pic="rouge004_confirmselection", timg_gap=5).click()
+        Getxy(tgt_pic="rouge04_confirmselection", timg_gap=5).click()
         scrn_ctrl().click(0.04, 0.06)
-        getxy(tgt_pic="rouge005_termination", times=2).click()
-        getxy(tgt_pic="rouge006_quit").click()
+        Getxy(tgt_pic="rouge05_termination").click()
+        Getxy(tgt_pic="rouge06_quit").click()
         count += 1
 
 
@@ -30,14 +30,15 @@ def topquit():
 
 
 def homequit():
-    log.logit("开始：尝试从home按钮退出")
-    if getxy(tgt_pic="homequit", retry_enabled=False).coords is not None:
-        log.logit("完成：尝试从home按钮退出")
-        getxy(tgt_pic="homequit", retry_enabled=False).click()
-    else:
-        log.logit("尝试从home按钮退出失败, 点击右下角退出潜在弹窗")
-        scrn_ctrl().click(0.916, 0.935,time_gap=2)
-        getxy(tgt_pic="homequit", success_msg="已点击返回home", retry_enabled=False)
+    while True:
+        log.logit("开始：尝试从home按钮退出")
+        tgt_xy = Getxy(tgt_pic="homequit", retry_enabled=False)
+        if tgt_xy:
+            tgt_xy.click()
+            log.logit("完成：尝试从home按钮退出")
+        else:
+            log.logit("尝试从home按钮退出失败, 点击右下角退出潜在弹窗")
+            scrn_ctrl().click(0.916, 0.935,sleep_time=2)
 
 
 def wqmtstart():  # 连接设备，失败则报错
@@ -46,28 +47,29 @@ def wqmtstart():  # 连接设备，失败则报错
 
 def panelcheck():
     log.logit("开始：检查面板")
-    if getxy(tgt_pic="friend1", retry_enabled=False).coords is not None:
+    tgt_xy = Getxy(tgt_pic="friend1", retry_enabled=False)
+    if tgt_xy:
         pass
     else:
-        scrn_ctrl().click(0.683, 0.53, time_gap=2)  # 展开面板
+        scrn_ctrl().click(0.683, 0.53, sleep_time=2)  # 展开面板
         log.logit("点击展开面板")
     log.logit("完成：检查面板")
 
 
 def starttohome():  # 启动到home
     log.logit("开始：启动, 检查系统公告")
-    if getxy(tgt_pic="caigouban1", retry_enabled=False).coords is not None: # 看看是不是已经进入主界面了
+    if Getxy(tgt_pic="caigouban1", retry_enabled=False).coords is not None: # 看看是不是已经进入主界面了
         pass
     else:
         while True:
-            if getxy(tgt_pic="login", retry_enabled=False, threshold=0.8).coords is not None:
-                getxy(tgt_pic="login").click()
+            if Getxy(tgt_pic="login", retry_enabled=False, threshold=0.8).coords is not None:
+                Getxy(tgt_pic="login").click()
                 log.logit("点击开始游戏按钮")
                 break
             else:
                 log.logit("没有找到开始游戏按钮，尝试启动app及检查系统公告, 等待10秒")
                 wqmtstart()  # 启动无期迷途
-                if getxy(tgt_pic="start1", retry_enabled=False, success_msg="发现系统公告").coords is not None:
+                if Getxy(tgt_pic="start1", retry_enabled=False, success_msg="发现系统公告").coords is not None:
                     scrn_ctrl().click(0.97, 0.5)  # 点击右侧边缘退出公告
         log.logit("等待16秒-->等待游戏完全进入主页面")
         sleep(16)
@@ -75,17 +77,17 @@ def starttohome():  # 启动到home
         [scrn_ctrl().click(0.916, 0.935) for i in range(2)]
 
         while True:
-            if getxy(tgt_pic="fuben1", retry_enabled=False).coords is not None:
+            if Getxy(tgt_pic="fuben1", retry_enabled=False).coords is not None:
                 break
             else:
                 log.logit("开始：检查月卡提示")
-                getxy(
+                Getxy(
                     tgt_pic="cancell", success_msg="@@@@@@@已经取消月卡购买界面，请之后注意补充@@@@", fail_msg="").click()
                 log.logit("结束：检查月卡提示")
                 log.logit("点击右下角退出潜在弹窗")
                 [scrn_ctrl().click(0.916, 0.935) for i in range(2)]
                 log.logit("开始：检查工会战提示")
-                getxy(
+                Getxy(
                     tgt_pic="confirm", success_msg="@@@@@@@已经取消公会战提醒，请之后记得参加@@@@", fail_msg="").click()
                 log.logit("结束：检查工会战提示")
                 log.logit("点击右下角退出潜在弹窗")
@@ -135,11 +137,11 @@ def getmail():
 
 def Bureau():
     log.logit("开始：管理局领体力，派遣")
-    getxy(tgt_pic="glj1", timg_gap=3).click()
+    Getxy(tgt_pic="glj1", timg_gap=3).click()
 
     log.logit("尝试收取体力")
     scrn_ctrl().click(0.143, 0.456, timg_gap=3)
-    [getxy(tgt_pic="lingqu", timg_gap=3, times=2).click() for i in range(2)]
+    [Getxy(tgt_pic="lingqu", timg_gap=3, times=2).click() for i in range(2)]
     log.logit("完成收取体力")
 
     topquit()
@@ -155,7 +157,7 @@ def Bureau():
 def friends():  # 朋友
     log.logit("开始：拜访朋友")
     panelcheck()
-    getxy(tgt_pic="friend1", timg_gap=5).click()
+    Getxy(tgt_pic="friend1", timg_gap=5).click()
     [scrn_ctrl().click(0.869, 0.855, timg_gap=1) for i in range(3)]
     homequit()
     log.logit("完成：朋友拜访")
@@ -177,7 +179,7 @@ def construction():  # 基建
 
 def purchase():  # 采购办领免费体力
     log.logit("开始：采购办领体力")
-    getxy(tgt_pic="caigouban1", timg_gap=5).click()
+    Getxy(tgt_pic="caigouban1", timg_gap=5).click()
     scrn_ctrl().click(0.091, 0.41, timg_gap=2)
     [scrn_ctrl().swipe(0.965, 0.578, 0.27, 0.611, timg_gap=1) for i in range(3)]
     log.logit("准备打开礼包")
@@ -190,18 +192,18 @@ def purchase():  # 采购办领免费体力
 
 def raidriver():  # 锈河
     log.logit("开始：锈河副本")
-    getxy(tgt_pic="fuben1", timg_gap=4, success_msg="尝试打开副本界面").click()
+    Getxy(tgt_pic="fuben1", timg_gap=4, success_msg="尝试打开副本界面").click()
 
     log.logit("尝试切换到锈河")
     scrn_ctrl().click(0.17, 0.92, timg_gap=3)
 
-    getxy(tgt_pic="fuben2", timg_gap=2, success_msg="尝试打开记忆风暴").click()
+    Getxy(tgt_pic="fuben2", timg_gap=2, success_msg="尝试打开记忆风暴").click()
     scrn_ctrl().click(0.835, 0.682, timg_gap=2)
 
-    getxy(tgt_pic="fubensaodang", success_msg="尝试点击连续扫荡").click()
-    getxy(tgt_pic="fubensaodangkaishi",success_msg="尝试点击开始").click()
-    if getxy(tgt_pic="done", retry_enabled=False, success_msg="尝试点击完成").coords is None:
-        getxy(tgt_pic="cancell", success_msg="次数用光，取消扫荡").click()
+    Getxy(tgt_pic="fubensaodang", success_msg="尝试点击连续扫荡").click()
+    Getxy(tgt_pic="fubensaodangkaishi",success_msg="尝试点击开始").click()
+    if Getxy(tgt_pic="done", retry_enabled=False, success_msg="尝试点击完成").coords is None:
+        Getxy(tgt_pic="cancell", success_msg="次数用光，取消扫荡").click()
 
     topquit()
     homequit()
@@ -210,31 +212,31 @@ def raidriver():  # 锈河
 
 def raid11():  # 刷11章
     log.logit("开始：raid任务")
-    getxy(tgt_pic="fuben1", timg_gap=4, success_msg="尝试打开副本界面").click()
+    Getxy(tgt_pic="fuben1", timg_gap=4, success_msg="尝试打开副本界面").click()
     scrn_ctrl().click(0.98, 0.41, timg_gap=2)  # 点击切换到右侧
-    getxy(tgt_pic="fuben3-11", timg_gap=2, success_msg="尝试打开11章").click()
+    Getxy(tgt_pic="fuben3-11", timg_gap=2, success_msg="尝试打开11章").click()
     [scrn_ctrl().swipe(0.965, 0.578, 0.27, 0.611, timg_gap=1) for i in range(2)]  # 滑动屏幕
     scrn_ctrl().click(0.078, 0.541, timg_gap=2)  # 点击11-6
-    getxy(tgt_pic="fubensaodang", timg_gap=2, success_msg="尝试点击连续扫荡").click()
+    Getxy(tgt_pic="fubensaodang", timg_gap=2, success_msg="尝试点击连续扫荡").click()
     [scrn_ctrl().click(0.712, 0.683) for i in range(6)]  # 点击+号
-    getxy(tgt_pic="fubensaodangkaishi", success_msg="尝试点击开始").click()
-    getxy(tgt_pic="done", timg_gap=2, success_msg="尝试点击完成").click()
+    Getxy(tgt_pic="fubensaodangkaishi", success_msg="尝试点击开始").click()
+    Getxy(tgt_pic="done", timg_gap=2, success_msg="尝试点击完成").click()
     homequit()
     log.logit("结束：raid任务")
 
 
 def raiddark():  ## 深井
     log.logit("开始：深井扫荡")
-    getxy(tgt_pic="fuben1", timg_gap=4, success_msg="尝试打开副本界面").click()
+    Getxy(tgt_pic="fuben1", timg_gap=4, success_msg="尝试打开副本界面").click()
     scrn_ctrl().click(0.837, 0.891, timg_gap=2)  # 内海
     scrn_ctrl().click(0.193, 0.523, timg_gap=2)  # 浊暗之井
     while True:
-        if getxy(tgt_pic="fuben4", retry_enabled=False).coords is not None:
-            getxy(tgt_pic="fuben4", retry_enabled=False, timg_gap=3).click()
+        if Getxy(tgt_pic="fuben4", retry_enabled=False).coords is not None:
+            Getxy(tgt_pic="fuben4", retry_enabled=False, timg_gap=3).click()
             scrn_ctrl().click(0.587, 0.86, timg_gap=3)  # 点击扫荡
             break
         else:
-            getxy(tgt_pic="fuben4-1", retry_enabled=False, timg_gap=3, success_msg="非乐园副本，切换页面").click()
+            Getxy(tgt_pic="fuben4-1", retry_enabled=False, timg_gap=3, success_msg="非乐园副本，切换页面").click()
     topquit()
     homequit()
     log.logit("完成：深井扫荡")
