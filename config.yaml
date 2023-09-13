@@ -1,13 +1,13 @@
 sleep_time: 0.3 # 默认每步操作后的最小等待时间
-device_name1: 127.0.0.1:16416
+device_name: 127.0.0.1:16416
 dimensions: 1280,720 # 屏幕分辨率，请注意使用英文逗号
 log_switch: open  # open 打开log功能， close 关闭
 
 remote_dir: /sdcard/screenshot.png # 部分模拟器存储截图的位置不同,mumu12就是这个不用改
 
 # 调试用，没有实际作用
-device_name: 127.0.0.1:16384
+device_name2: 127.0.0.1:16384
 
 # 程序自动配置, 勿动
 saved_selections:
-- 管理局
+- 副本-深井

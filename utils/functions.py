@@ -36,6 +36,7 @@ class Getxy:
         xx=None,
         yy=None,
         sleep_time=None,
+        click_times=1
     ):
         """
         Initialize the `Getxy` object.
@@ -68,6 +69,7 @@ class Getxy:
         self.y = y
         self.xx = xx
         self.yy = yy
+        self.click_times = int(click_times)
 
         # Log the initialization details
         log.logit(
@@ -79,6 +81,8 @@ class Getxy:
         if sleep_time is None:
             self.sleep_time = cfg.sleep_time
             log.logit(f"因为时间为None，赋值为{cfg.sleep_time}", False)
+        else:
+            self.sleep_time = float(sleep_time)
 
         # Call the appropriate methods based on the provided parameters
         if self.tgt_pic:
@@ -115,8 +119,10 @@ class Getxy:
                 ) and all(coord > 0 for coord in self.coords):
                     break
             log.logit(f"生成了符合要求的随机坐标 {' '.join(map(str, self.coords))}", False)
+            return self.coords
         else:
-            return None
+            self.coords = None
+            return self.coords
 
 
     def cap_scrn(self):
@@ -141,11 +147,14 @@ class Getxy:
                     self.x = (box_data[0][0] + box_data[2][0]) / 2  # 计算X坐标
                     self.y = (box_data[0][1] + box_data[2][1]) / 2  # 计算Y坐标
                     log.logit(f"{self.success_msg}, 根据文字匹配结果返回 {self.x} {self.y}")
-                    break
+                    self.coords = [self.x, self.y]
+                    return self.coords
                 else:
                     log.logit(
                         f"{self.fail_msg}, 文字匹配失败 {self.tgt_txt}",
                     )
+                    self.coords = None
+                    return self.coords
 
     def find_pic(self):
 
@@ -169,14 +178,16 @@ class Getxy:
                     max_loc[1] + template.shape[0] // 2,
                 )
                 log.logit(f"{self.success_msg}, 根据图像匹配结果返回 {self.x} {self.y}")
-                break
+                self.coords = [self.x, self.y]
+                return self.coords
             else:
                 log.logit(f"{self.fail_msg}, 图像匹配失败 {self.tgt_pic}")
-                return None
+                self.coords = None
+                return self.coords
     
     def click(self):
-        log.logit(f"开始点击屏幕坐标 {self.x} {self.y}", False)
-        scrn_ctrl().click(self.x, self.y, self.sleep_time)
+        log.logit(f"开始点击屏幕坐标 {self.x} {self.y}, {self.sleep_time}",  False)
+        [scrn_ctrl().click(self.x, self.y, self.sleep_time) for _ in range(self.click_times)]
 
 class scrn_ctrl:
     def __init__(self):
@@ -187,16 +198,22 @@ class scrn_ctrl:
         if sleep_time is None:
             self.sleep_time = cfg.sleep_time
             log.logit(f"因为时间为None，赋值为{cfg.sleep_time}", False)
-        for _ in range(25):
-            mtime = round(rd.normalvariate(sleep_time, sleep_time * 0.3), 2)
-            if sleep_time < mtime < sleep_time * 1.3:
-                log.logit(f"根据 {sleep_time} 生成随机时间 {mtime}", False)
+        else:
+            self.sleep_time = sleep_time
+        for _ in range(35):
+            mtime = round(rd.normalvariate(self.sleep_time, self.sleep_time * 0.3), 2)
+            if self.sleep_time < mtime < self.sleep_time * 1.3:
+                log.logit(f"根据 {self.sleep_time} 生成随机时间 {mtime}", False)
+                self.sleep_time = mtime
                 if rd.random() > 0.85:
                     mtime += 1
                     log.logit(f"遇到了15%的随机事件，随机时间调整为 {mtime}", False)
                 self.sleep_time = mtime
-        log.logit(f"根据 {sleep_time} 在指定次数内没有生成符合要求的新时间，将返回2", False)
-        self.sleep_time = 2
+                print(self.sleep_time)
+                break
+            else:
+                log.logit(f"根据 {self.sleep_time} 在指定次数内没有生成符合要求的新时间，将返回2", False)
+                self.sleep_time = 2
 
     def get_coords(self, x, y,xx=0,yy=0):  
         self.coords1 = Getxy(x=x, y=y).coords
