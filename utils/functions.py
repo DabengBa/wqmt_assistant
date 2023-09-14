@@ -183,7 +183,7 @@ class Getxy:
             else:
                 log.logit(f"{self.fail_msg}, 图像匹配失败 {self.tgt_pic}")
                 self.coords = None
-                return self.coords
+        return self.coords
     
     def click(self):
         log.logit(f"开始点击屏幕坐标 {self.x} {self.y}, {self.sleep_time}",  False)
@@ -201,7 +201,7 @@ class scrn_ctrl:
         else:
             self.sleep_time = sleep_time
         for _ in range(35):
-            mtime = round(rd.normalvariate(self.sleep_time, self.sleep_time * 0.3), 2)
+            mtime = round(rd.normalvariate(self.sleep_time, self.sleep_time * 0.2), 2)
             if self.sleep_time < mtime < self.sleep_time * 1.3:
                 log.logit(f"根据 {self.sleep_time} 生成随机时间 {mtime}", False)
                 self.sleep_time = mtime

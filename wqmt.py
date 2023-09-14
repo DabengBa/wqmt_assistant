@@ -207,8 +207,8 @@ def raidriver():  # 锈河
     scrn_ctrl().click(0.835, 0.682, sleep_time=2)
 
     Getxy(tgt_pic="fubensaodang", success_msg="尝试点击连续扫荡").click()
-    Getxy(tgt_pic="fubensaodangkaishi",success_msg="尝试点击开始").click()
-    if Getxy(tgt_pic="done", retry_enabled=False, success_msg="尝试点击完成").coords is None:
+    Getxy(tgt_pic="fubensaodangkaishi",success_msg="尝试点击开始",sleep_time=10).click()
+    if Getxy(tgt_pic="done", success_msg="尝试点击完成", retry_enabled=False).coords is None:
         Getxy(tgt_pic="cancell", success_msg="次数用光，取消扫荡").click()
 
     topquit()
