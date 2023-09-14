@@ -186,8 +186,12 @@ class Getxy:
         return self.coords
     
     def click(self):
-        log.logit(f"开始点击屏幕坐标 {self.x} {self.y}, {self.sleep_time}",  False)
-        [scrn_ctrl().click(self.x, self.y, self.sleep_time) for _ in range(self.click_times)]
+        if self.x is None:
+            log.logit(f"因为坐标为None，无法点击", False)
+            return None
+        else:
+            log.logit(f"开始点击屏幕坐标 {self.x} {self.y}, {self.sleep_time}",  False)
+            [scrn_ctrl().click(self.x, self.y, self.sleep_time) for _ in range(self.click_times)]
 
 class scrn_ctrl:
     def __init__(self):

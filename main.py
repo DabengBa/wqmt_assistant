@@ -13,6 +13,7 @@ if __name__ == "__main__":
     options = ["早一次", "晚一次", "自选", "单刷肉鸽"]
     pw_put_text("打开options界面")
     selected_options = pw_actions("嗯……", options)
+    adb.connect()
     log.logit(selected_options)
     if cfg.log_switch == "close":
         pw_put_text(f"config.yaml中已经关闭日志输出，之后本窗口可以关闭")
