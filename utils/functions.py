@@ -15,11 +15,20 @@ import utils.config as cfg
 import utils.log as log
 import utils.adb as adb
 
+#TODO Review all the strings' type
+#TODO add annotations to all functions
 
-def get_time():
+from datetime import datetime
+
+def get_time() -> str:
+    """
+    Returns the current timestamp in the format "YYYY-MM-DD HH:MM:SS".
+    
+    Returns:
+        str: The current timestamp.
+    """
     time_stamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     return time_stamp
-
 
 class Getxy:
     def __init__(

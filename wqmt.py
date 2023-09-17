@@ -189,7 +189,7 @@ def purchase():  # 采购办领免费体力
     scrn_ctrl().click(0.091, 0.41, sleep_time=2)
     [scrn_ctrl().swipe(0.965, 0.578, 0.27, 0.611, sleep_time=1) for i in range(3)]
     log.logit("准备打开礼包")
-    #TODO 使用图像识别礼包，加入容错
+    #TODO 使用图像识别"礼包"，加入容错
     scrn_ctrl().click(0.587, 0.88, sleep_time=2)  # 收每日体力
     scrn_ctrl().click(0.766, 0.733, sleep_time=2)  # 确认
     # 截图，呈现
