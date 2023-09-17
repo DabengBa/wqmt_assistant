@@ -59,7 +59,7 @@ def panelcheck():
 def starttohome():  # 启动到home
     log.logit("开始：启动, 检查系统公告").text()
 
-    find_xy = Getxy(tgt_pic="caigouban1", retry_enabled=False)
+    find_xy = Getxy(tgt_pic="caigouban01", retry_enabled=False)
     if find_xy.coords: # 看看是不是已经进入主界面了
         pass
     else:
@@ -191,12 +191,15 @@ def construction():  # 基建
 
 def purchase():  # 采购办领免费体力
     log.logit("开始：采购办领体力").text()
-    Getxy(tgt_pic="caigouban1", sleep_time=5).click()
+    Getxy(tgt_pic="caigouban01", sleep_time=5).click()
     scrn_ctrl().click(0.091, 0.41, sleep_time=2)
-    [scrn_ctrl().swipe(0.965, 0.578, 0.27, 0.611, sleep_time=1) for i in range(3)]
-    log.logit("准备打开礼包").text()
-    #TODO 使用图像识别"礼包"，加入容错
-    scrn_ctrl().click(0.587, 0.88, sleep_time=2)  # 收每日体力
+    while True:
+        [scrn_ctrl().swipe(0.965, 0.578, 0.27, 0.611, sleep_time=1) for i in range(3)]
+        find_xy = Getxy(tgt_pic="caigouban02", sleep_time=2, retry_enabled=False)
+        if find_xy.coords:
+            log.logit("准备打开礼包").text()
+            find_xy.click()
+            break
     scrn_ctrl().click(0.766, 0.733, sleep_time=2)  # 确认
     # 截图，呈现
     log.logit("领取完毕").text()
@@ -262,19 +265,29 @@ def raiddark():  ## 深井
     log.logit("完成：深井扫荡").text()
 
 def supervision():
-    #TODO 每周领取数据包的任务需要做。增加判断是否已经领取过了。
-    log.logit("开始：监察密令 领取奖励").text()
-    panelcheck()
+    #TODO 每周领取数据包的任务需要测试。
+    #TODO 增加判断是否已经领取过了需要测试。
+    log.logit("开始：监察密令 领取奖励, 预计持续50秒").text()
     scrn_ctrl().click(0.72, 0.78, sleep_time=2) # 进入监察密令
-    Getxy(tgt_pic="supervision01").click() # 切换到检查任务
-    Getxy(tgt_pic="supervision02",sleep_time=2).click() # 领取
+    Getxy(tgt_pic="supervision01", sleep_time=2).click() # 切换到检查任务
+    #每周领取数据包任务
+    find_xy = Getxy(tgt_pic="supervision04",retry_enabled=False)
+    if find_xy.coords:
+        find_xy.click()
+        Getxy(tgt_pic="supervision05",retry_enabled=False)
+    #判断是否已经领取过了
+    find_xy = Getxy(tgt_pic="supervision02",sleep_time=2, retry_enabled=False)
+    if find_xy.coords:
+        find_xy.click()
     scrn_ctrl().click(0.916, 0.935,sleep_time=2) # 右下角退出物品领取界面
     Getxy(tgt_pic="supervision03").click() # 切换到密令
-    Getxy(tgt_pic="supervision02",sleep_time=2).click() # 领取
+    find_xy = Getxy(tgt_pic="supervision02",sleep_time=2, retry_enabled=False)
+    if find_xy.coords:
+        find_xy.click()
     scrn_ctrl().click(0.916, 0.935,sleep_time=2) # 右下角退出物品领取界面
     log.logit().img()
-    log.logit("完成：监察密令 领取奖励").text()
     homequit()
+    log.logit("完成：监察密令 领取奖励").text()
 
 def morning():
     starttohome()
@@ -307,7 +320,7 @@ def select_jobs():
         "基建收菜",
         "管理局",
         "好友",
-        "监察密令"
+        "监察密令",
         "副本-锈河记忆",
         "副本-11-6",
         "副本-深井",

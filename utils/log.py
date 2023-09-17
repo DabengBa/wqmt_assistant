@@ -1,6 +1,7 @@
 from os import path, listdir, remove
 import time as time
 import utils.config as cfg
+import utils.adb as adb
 import pywebio as pw
 
 days_to_keep = 7
@@ -64,4 +65,5 @@ class logit():
 
     def img(self):
         if self.enabled:
+            adb.cap_scrn()
             pw.output.put_image(open(cfg.scrn_dir, "rb").read(), width="500px", scope="log_area")
