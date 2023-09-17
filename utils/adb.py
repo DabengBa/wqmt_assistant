@@ -4,7 +4,6 @@ import random as rd
 # Pip
 from subprocess import run as adb_run, DEVNULL, PIPE
 
-
 # Private
 import utils.config as cfg
 import utils.log as log
@@ -39,9 +38,10 @@ def connect():  # 连接设备，失败则报错
         [cfg.adb_dir, "connect", cfg.device_name], stdout=PIPE, stderr=PIPE
     )
     if "cannot" in result.stdout.decode():
-        log.logit(f"连接模拟器失败，请见检查congfig.yaml中device_name的配置")
+        print("连接模拟器失败，请见检查congfig.yaml中device_name的配置")
+        log.logit(content="连接模拟器失败，请见检查congfig.yaml中device_name的配置").warning()
     else:
-        log.logit(f"连接模拟器成功")
+        log.logit(f"连接模拟器成功").text()
 
 def start(app):
     adb_run(
