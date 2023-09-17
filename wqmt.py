@@ -88,13 +88,13 @@ def starttohome():  # 启动到home
             else:
                 log.logit("开始：检查月卡提示")
                 Getxy(
-                    tgt_pic="cancell", success_msg="@@@@已经取消月卡购买界面，请之后注意补充@@@@", fail_msg="").click()
+                    tgt_pic="cancell", success_msg="@@@@已经取消月卡购买界面，请之后注意补充@@@@", retry_enabled=False,fail_msg="").click()
                 log.logit("结束：检查月卡提示")
                 log.logit("点击右下角退出潜在弹窗")
                 [scrn_ctrl().click(0.916, 0.935) for i in range(2)]
                 log.logit("开始：检查工会战提示")
                 Getxy(
-                    tgt_pic="confirm", success_msg="@@@@已经取消公会战提醒，请之后记得参加@@@@", fail_msg="").click()
+                    tgt_pic="confirm", success_msg="@@@@已经取消公会战提醒，请之后记得参加@@@@", retry_enabled=False,fail_msg="").click()
                 log.logit("结束：检查工会战提示")
                 log.logit("点击右下角退出潜在弹窗")
                 [scrn_ctrl().click(0.916, 0.935) for i in range(2)]
@@ -189,8 +189,14 @@ def purchase():  # 采购办领免费体力
     scrn_ctrl().click(0.091, 0.41, sleep_time=2)
     [scrn_ctrl().swipe(0.965, 0.578, 0.27, 0.611, sleep_time=1) for i in range(3)]
     log.logit("准备打开礼包")
+    #TODO 使用图像识别礼包，加入容错
     scrn_ctrl().click(0.587, 0.88, sleep_time=2)  # 收每日体力
     scrn_ctrl().click(0.766, 0.733, sleep_time=2)  # 确认
+    # 截图，呈现
+    adb.cap_scrn()
+    log.logit("领取完毕")
+    pw_put_image(open(cfg.scrn_dir, "rb").read(), width="500px")
+    # 退出
     topquit()
     homequit()
     log.logit("结束：采购办领体力")

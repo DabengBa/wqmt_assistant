@@ -2,6 +2,10 @@
 ![img](https://github.com/walklty/wqmt_assistant/blob/dev/Target/Snipaste_2023-09-09_05-17-32.png?raw=true)
 
 
+# 主要更新内容
+
+📅202309xx 我跟ChatGPT说，你看人家代码都有个class什么的，你也这样给我改改。另外改了一些寻找图片的循环逻辑，增加了一些图像识别步骤。
+
 📅20230909 增加了肉鸽刷界石的步骤。进去退出来竟然有20界石……个人感觉有点bug
 
 请在游戏主界面启动。请先通关一次。

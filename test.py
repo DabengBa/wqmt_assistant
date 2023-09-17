@@ -7,4 +7,4 @@ import utils.adb as adb
 
 
 adb.connect()
-wq.raiddark()
+scrn_ctrl().click(0.4, 0.05, sleep_time=1.0)
