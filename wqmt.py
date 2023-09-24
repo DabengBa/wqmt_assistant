@@ -42,6 +42,11 @@ def homequit():
         else:
             log.logit("尝试从home按钮退出失败, 点击右下角退出潜在弹窗").text()
             scrn_ctrl().click(0.916, 0.935, sleep_time=2)
+    find_xy = Getxy(tgt_pic="fuben1", retry_enabled=False)  # 检查一下是否真的回到了主界面
+    if find_xy.coords:
+        pass
+    else:
+        Getxy(tgt_pic="homequit", retry_enabled=False).click()
 
 
 def wqmtstart():  # 连接设备，失败则报错
@@ -104,7 +109,7 @@ def starttohome():  # 启动到home
                 [
                     scrn_ctrl().click(0.916, 0.935) for i in range(2)
                 ]  # 点击右下角退出潜在弹窗
-                log.logit("开始：检查工会战提示").text()
+                log.logit("开始：检查公会战提示").text()
                 Getxy(
                     tgt_pic="confirm",
                     success_msg="@@@@已经取消公会战提醒，请之后记得参加@@@@",
@@ -121,6 +126,7 @@ def starttohome():  # 启动到home
 
 def guild():
     log.logit("开始：公会收菜").text()
+    log.logit().img()
     panelcheck()
     scrn_ctrl().click(0.933, 0.365, sleep_time=3)
     log.logit("进入工会").text()
@@ -137,6 +143,7 @@ def guild():
 
 def dailycheckin():
     log.logit("开始：Check-in").text()
+    log.logit().img()
     scrn_ctrl().click(0.825, 0.15, sleep_time=2)
     log.logit("尝试完成对话").text()
     [scrn_ctrl().click(0.807, 0.64) for i in range(10)]
@@ -154,6 +161,7 @@ def dailycheckin():
 
 def getmail():
     log.logit("开始：收邮件").text()
+    log.logit().img()
     scrn_ctrl().click(0.958, 0.146, sleep_time=2)
     [scrn_ctrl().click(0.263, 0.942, sleep_time=1) for i in range(4)]
     log.logit().img()
@@ -163,6 +171,7 @@ def getmail():
 
 def Bureau():
     log.logit("开始：管理局领体力，派遣").text()
+    log.logit().img()
     Getxy(tgt_pic="glj1", sleep_time=3).click()
 
     log.logit("尝试收取体力").text()
@@ -187,6 +196,7 @@ def Bureau():
 
 def friends():  # 朋友
     log.logit("开始：拜访朋友").text()
+    log.logit().img()
     panelcheck()
     Getxy(tgt_pic="friend1", sleep_time=5).click()
     [scrn_ctrl().click(0.869, 0.855, sleep_time=1) for i in range(3)]
@@ -197,6 +207,7 @@ def friends():  # 朋友
 
 def construction():  # 基建
     log.logit("开始：基建").text()
+    log.logit().img()
     panelcheck()
     scrn_ctrl().click(0.844, 0.629, sleep_time=3)
     log.logit("开始收菜").text()
@@ -212,6 +223,7 @@ def construction():  # 基建
 
 def purchase():  # 采购办领免费体力
     log.logit("开始：采购办领体力").text()
+    log.logit().img()
     Getxy(tgt_pic="caigouban01", sleep_time=5).click()
     scrn_ctrl().click(0.091, 0.41, sleep_time=2)
     while True:
@@ -238,6 +250,7 @@ def purchase():  # 采购办领免费体力
 
 def raidriver():  # 锈河
     log.logit("开始：锈河副本").text()
+    log.logit().img()
     Getxy(tgt_pic="fuben1", sleep_time=4, success_msg="尝试打开副本界面").click()
 
     log.logit("尝试切换到锈河").text()
@@ -263,6 +276,7 @@ def raidriver():  # 锈河
 
 def raid11():  # 刷11章
     log.logit("开始：raid任务").text()
+    log.logit().img()
     Getxy(tgt_pic="fuben1", sleep_time=4, success_msg="尝试打开副本界面").click()
     scrn_ctrl().click(0.98, 0.41, sleep_time=2)  # 点击切换到右侧
     Getxy(tgt_pic="fuben3-11", sleep_time=2, success_msg="尝试打开11章").click()
@@ -282,6 +296,7 @@ def raid11():  # 刷11章
 
 def raiddark():  ## 深井
     log.logit("开始：深井扫荡").text()
+    log.logit().img()
     Getxy(tgt_pic="fuben1", sleep_time=4, success_msg="尝试打开副本界面").click()
     scrn_ctrl().click(0.837, 0.891, sleep_time=2)  # 内海
     scrn_ctrl().click(0.193, 0.523, sleep_time=2)  # 浊暗之井
@@ -307,23 +322,34 @@ def raiddark():  ## 深井
 def supervision():
     # TODO 每周领取数据包的任务需要测试。
     # TODO 增加判断是否已经领取过了需要测试。
-    log.logit("开始：监察密令 领取奖励, 预计持续50秒").text()
+    log.logit("开始：监察密令 领取奖励, 预计持续75秒").text()
+    log.logit().img()
     scrn_ctrl().click(0.72, 0.78, sleep_time=2)  # 进入监察密令
     Getxy(tgt_pic="supervision01", sleep_time=2).click()  # 切换到检查任务
-    # 每周领取数据包任务
-    find_xy = Getxy(tgt_pic="supervision04", retry_enabled=False)
+    # 每周领取数据包任务，重复三次，领取每日、每周、密令三种奖励
+    for _ in range(1):
+        find_xy = Getxy(tgt_pic="supervision04", retry_enabled=False)
+        if find_xy.coords:
+            find_xy.click()
+            Getxy(tgt_pic="supervision05", retry_enabled=False)
+        # 判断是否已经领取过了
+        find_xy = Getxy(
+            tgt_pic="supervision02", sleep_time=1, retry_enabled=False
+        )
+        if find_xy.coords:
+            find_xy.click()
+        scrn_ctrl().click(0.916, 0.935, sleep_time=1)  # 右下角退出物品领取界面
+        Getxy(tgt_pic="supervision03").click()  # 切换到密令
+    # 领取奖励
+    find_xy = Getxy(tgt_pic="supervision02", sleep_time=1, retry_enabled=False)
     if find_xy.coords:
         find_xy.click()
-        Getxy(tgt_pic="supervision05", retry_enabled=False)
-    # 判断是否已经领取过了
-    find_xy = Getxy(tgt_pic="supervision02", sleep_time=2, retry_enabled=False)
-    if find_xy.coords:
-        find_xy.click()
-    scrn_ctrl().click(0.916, 0.935, sleep_time=2)  # 右下角退出物品领取界面
-    Getxy(tgt_pic="supervision03").click()  # 切换到密令
-    find_xy = Getxy(tgt_pic="supervision02", sleep_time=2, retry_enabled=False)
-    if find_xy.coords:
-        find_xy.click()
+        # 检查是否出现了二选一
+        find_xy = Getxy(
+            tgt_pic="supervision06", sleep_time=1, retry_enabled=False
+        )
+        if find_xy.coords:
+            scrn_ctrl().click(0.63, 0.71, sleep_time=2)
     scrn_ctrl().click(0.916, 0.935, sleep_time=2)  # 右下角退出物品领取界面
     log.logit().img()
     homequit()
@@ -347,8 +373,8 @@ def night():
     Bureau()
     friends()
     construction()
-    supervision()
     raid11()
+    supervision()
 
 
 def select_jobs():
