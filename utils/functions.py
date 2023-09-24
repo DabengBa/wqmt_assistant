@@ -1,12 +1,10 @@
 # Ori
 from os import path
-from datetime import datetime
 from time import sleep
 import random as rd
 from typing import List, Optional
 
 # Pip
-from subprocess import run as adb_run, DEVNULL, PIPE
 import cv2
 
 # Private
@@ -52,12 +50,12 @@ class Getxy:
 
         """
         # Set the attributes
-        ## get
+        # get
         self.tgt_pic = str(tgt_pic)
         self.tgt_txt = str(tgt_txt)
         self.threshold = float(threshold)
-        self.success_msg = str(success_msg)
-        self.fail_msg = str(fail_msg)
+        self.success_msg = success_msg
+        self.fail_msg = fail_msg
         self.retry_enabled = bool(retry_enabled)
         self.retry_wait_seconds = float(retry_wait_seconds)
         self.x = float(x)
@@ -67,7 +65,7 @@ class Getxy:
         self.sleep_time = float(sleep_time)
         self.click_times = int(click_times)
 
-        ## Generated
+        # Generated
         self.tgt_pic_dir = str(
             path.join(
                 cfg.curr_dir, "Target", cfg.prog_Name, f"{self.tgt_pic}.png"
@@ -93,7 +91,7 @@ class Getxy:
 
     def gen_ran_xy(self) -> List[float]:
         """
-        Generate random x and y coordinates based on a normal distribution with 12px differences.
+        Generate random x and y based on a normal distribution  within +- 12px.
         precondition x !=0.0
         Returns:
             List[float]: A list of generated coordinates [x, y, xx, yy].
@@ -168,11 +166,6 @@ class Getxy:
                     return self.coords
 
     def find_pic(self) -> Optional[List[float]]:
-        """
-        Find the target picture in the screen image using template matching.
-        Returns:
-            List[float]: The coordinates of the target picture if found, None otherwise.
-        """
         for i in range(self.retry_times):
             log.logit(f"开始第{i+1}次图像匹配, 目标 {self.tgt_pic}", False).text()
             sleep(self.retry_wait_seconds)
@@ -204,7 +197,7 @@ class Getxy:
                     f"{self.fail_msg}, 图像匹配失败 {self.tgt_pic}", False
                 ).text()
                 self.coords = None
-        return self.coords
+                return self.coords
 
     def click(self):
         if self.x == 0.0:

@@ -25,45 +25,58 @@ for filename in listdir(log_folder):
 
 # 如果config.yaml中打开了日志功能，则创建一个滚动区域用来输出log
 if cfg.log_switch == "open":
-    pw.output.put_scrollable(pw.output.put_scope("log_area"), height=500, keep_bottom=True)
+    pw.output.put_scrollable(
+        pw.output.put_scope("log_area"), height=500, keep_bottom=True
+    )
 else:
     print("日志功能未打开,请查看config.yaml")
 
-class logit():
-    def __init__(self, content:str = "", shown:bool=True) -> None:
+
+class logit:
+    def __init__(self, content: str = "", shown: bool = True) -> None:
         # get
         self.content = content
         self.shown = shown
-        if cfg.log_switch == "open": # 只有在config.yaml中开启了日志输出才会执行
+        if cfg.log_switch == "open":  # 只有在config.yaml中开启了日志输出才会执行
             # generated
             self.enabled = True
-            self.file_dir = path.join(cfg.curr_dir, "log", cfg.formatted_today + ".txt")
-            self.formatted_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()))
+            self.file_dir = path.join(
+                cfg.curr_dir, "log", cfg.formatted_today + ".txt"
+            )
+            self.formatted_time = time.strftime(
+                "%Y-%m-%d %H:%M:%S", time.localtime(time.time())
+            )
         else:
             self.enabled = False
             return
-        
+
     def text(self):
         if self.enabled:
             with open(self.file_dir, "a", encoding="utf-8") as f:  # 使用追加模式打开文件
                 f.write(self.content + " " + self.formatted_time + "\n")
             if self.shown:
-                pw.output.put_text(self.content + " " + self.formatted_time, scope="log_area")
+                pw.output.put_text(
+                    self.content + " " + self.formatted_time, scope="log_area"
+                )
 
     def warning(self):
         if self.enabled:
             with open(self.file_dir, "a", encoding="utf-8") as f:  # 使用追加模式打开文件
                 f.write(self.content + " " + self.formatted_time + "\n")
-        pw.output.popup('警告', self.content, size='normal')
+        pw.output.popup("警告", self.content, size="normal")
 
     def toast(self):
         if self.enabled:
             with open(self.file_dir, "a", encoding="utf-8") as f:  # 使用追加模式打开文件
                 f.write(self.content + " " + self.formatted_time + "\n")
             if self.shown:
-                pw.output.toast(self.content, position='right', color='#2188ff', duration=0)
+                pw.output.toast(
+                    self.content, position="right", color="#2188ff", duration=0
+                )
 
     def img(self):
         if self.enabled:
             adb.cap_scrn()
-            pw.output.put_image(open(cfg.scrn_dir, "rb").read(), width="500px", scope="log_area")
+            pw.output.put_image(
+                open(cfg.scrn_dir, "rb").read(), width="500px", scope="log_area"
+            )
