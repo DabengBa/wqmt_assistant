@@ -321,13 +321,21 @@ def raiddark():  ## 深井
 
 def supervision():
     # TODO 每周领取数据包的任务需要测试。
-    # TODO 增加判断是否已经领取过了需要测试。
     log.logit("开始：监察密令 领取奖励, 预计持续75秒").text()
     log.logit().img()
     scrn_ctrl().click(0.72, 0.78, sleep_time=2)  # 进入监察密令
-    Getxy(tgt_pic="supervision01", sleep_time=2).click()  # 切换到检查任务
-    # 每周领取数据包任务，重复三次，领取每日、每周、密令三种奖励
-    for _ in range(1):
+    Getxy(tgt_pic="supervision01", sleep_time=1).click()  # 切换到检查任务
+    find_xy = Getxy(
+        tgt_pic="supervision07", sleep_time=1, retry_enabled=False
+    )  # 检查每周领取数据包任务
+    if find_xy.coords:
+        find_xy.click()
+        Getxy(
+            tgt_pic="supervision08", sleep_time=1, retry_enabled=False
+        ).click()
+    Getxy(tgt_pic="supervision01", sleep_time=1).click()  # 切换到检查任务
+    # 重复三次，领取每日、每周、密令三种奖励
+    for _ in range(3):
         find_xy = Getxy(tgt_pic="supervision04", retry_enabled=False)
         if find_xy.coords:
             find_xy.click()

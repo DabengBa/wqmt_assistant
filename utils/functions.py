@@ -227,7 +227,7 @@ class scrn_ctrl:
         """
         self.sleep_time = float(sleep_time)
 
-        log.logit(f"收到时间 {sleep_time} 准备生成随机时间", False).text()
+        log.logit(f"收到时间 {self.sleep_time} 准备生成随机时间", False).text()
         for _ in range(45):
             mtime = round(
                 rd.normalvariate(self.sleep_time, self.sleep_time * 0.2), 2
@@ -239,9 +239,10 @@ class scrn_ctrl:
                 log.logit(f"根据 {self.sleep_time} 生成随机时间 {mtime}", False).text()
                 self.sleep_time = mtime
                 break
-        log.logit(
-            f"根据 {self.sleep_time} 在指定次数内没有生成符合要求的新时间，将使用原值", False
-        ).text()
+            else:
+                log.logit(
+                    f"根据 {self.sleep_time} 在指定次数内没有生成符合要求的新时间，将使用原值", False
+                ).text()
 
     def get_coords(self, x: float, y: float, xx: float = 0.0, yy: float = 0.0):
         """
