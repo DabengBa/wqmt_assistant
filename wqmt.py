@@ -91,9 +91,11 @@ def starttohome():  # 启动到home
         log.logit("等待16秒-->等待游戏完全进入主页面").text()
         sleep(16)
         log.logit("点击右下角退出潜在弹窗").text()
-        [scrn_ctrl().click(0.916, 0.935) for i in range(2)]
+        [scrn_ctrl().click(0.966, 0.965) for i in range(2)]
 
+        count = int(1)
         while True:
+            count = count + 1
             find_xy = Getxy(tgt_pic="fuben1", retry_enabled=False)
             if find_xy.coords:
                 break
@@ -117,7 +119,9 @@ def starttohome():  # 启动到home
                     fail_msg="",
                 ).click()
                 log.logit("结束：检查工会战提示").text()
-                [scrn_ctrl().click(0.916, 0.935) for i in range(2)]
+                [scrn_ctrl().click(0.966, 0.965) for i in range(2)]
+                if count == 5:
+                    homequit()
     [scrn_ctrl().click(0.916, 0.935) for i in range(2)]
     panelcheck()  # 检查面板状态，如果没有展开则展开
     log.logit().img()
