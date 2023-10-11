@@ -306,8 +306,10 @@ def raiddark():  ## 深井
     scrn_ctrl().click(0.193, 0.523, sleep_time=2)  # 浊暗之井
     while True:
         find_xy = Getxy(tgt_pic="fuben4", retry_enabled=False, sleep_time=3)
+        log.logit().img()  # TODO debug 偶尔失效问题
         if find_xy.coords:
             find_xy.click()
+            Getxy(tgt_pic="fuben4", retry_enabled=False, sleep_time=3).click()
             scrn_ctrl().click(0.587, 0.86, sleep_time=3)  # 点击扫荡
             break
         else:

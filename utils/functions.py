@@ -239,10 +239,6 @@ class scrn_ctrl:
                 log.logit(f"根据 {self.sleep_time} 生成随机时间 {mtime}", False).text()
                 self.sleep_time = mtime
                 break
-            else:
-                log.logit(
-                    f"根据 {self.sleep_time} 在指定次数内没有生成符合要求的新时间，将使用原值", False
-                ).text()
 
     def get_coords(self, x: float, y: float, xx: float = 0.0, yy: float = 0.0):
         """
