@@ -364,6 +364,7 @@ def supervision():
         )
         if find_xy.coords:
             scrn_ctrl().click(0.63, 0.71, sleep_time=2)
+            Getxy(tgt_pic="supervision09", sleep_time=2, retry_enabled=False).click()
     scrn_ctrl().click(0.916, 0.935, sleep_time=2)  # 右下角退出物品领取界面
     log.logit().img()
     homequit()
