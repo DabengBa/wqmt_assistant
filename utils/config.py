@@ -25,10 +25,6 @@ sleep_time = config.get("sleep_time", "")
 remote_dir = config.get("remote_dir", "")
 device_name = config.get("device_name", "")
 sever_type = config.get("sever_type", "")
-width, height = (
-    map(int, config.get("dimensions", "").split(","))
-    if config.get("dimensions")
-    else (1280, 720)
-)
+width, height = (1280, 720)
 saved_selections = config.get("saved_selections", "")
 prog_Name = "wqmt"
