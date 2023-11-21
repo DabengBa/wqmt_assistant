@@ -13,7 +13,9 @@ def rouge():
     count = 1
     while True:
         log.logit(f"开始第{count}次").text()
-        Getxy(tgt_pic="rouge01_entry", fail_msg="没有找到肉鸽入口，请确保已经进到有“进入探索”的界面").click()
+        Getxy(
+            tgt_pic="rouge01_entry", fail_msg="没有找到肉鸽入口，请确保已经进到有“进入探索”的界面"
+        ).click()
         Getxy(tgt_pic="rouge02_nextstep").click()
         Getxy(tgt_pic="rouge03_start", sleep_time=5).click()
         scrn_ctrl().click(0.35, 0.5)
@@ -85,7 +87,7 @@ def starttohome():  # 启动到home
 # TODO Rename this here and in `starttohome`
 def click_start():
     while True:
-        find_xy = Getxy(tgt_pic="login", retry_enabled=False, threshold=0.8)
+        find_xy = Getxy(tgt_pic="login", retry_enabled=False, threshold=0.85)
         if find_xy.coords:
             find_xy.click()
             log.logit("点击开始游戏按钮").text()
@@ -93,7 +95,9 @@ def click_start():
         else:
             log.logit("没有找到开始游戏按钮，尝试启动app及检查系统公告, 等待10秒").text()
             wqmtstart()  # 启动无期迷途
-            find_xy = Getxy(tgt_pic="start1", retry_enabled=False, success_msg="发现系统公告")
+            find_xy = Getxy(
+                tgt_pic="start1", retry_enabled=False, success_msg="发现系统公告"
+            )
             if find_xy.coords:
                 scrn_ctrl().click(0.97, 0.5)  # 点击右侧边缘退出公告
     log.logit("等待16秒-->等待游戏完全进入主页面").text()
@@ -181,7 +185,10 @@ def Bureau():
 
     log.logit("尝试收取体力").text()
     scrn_ctrl().click(0.143, 0.456, sleep_time=3)
-    [Getxy(tgt_pic="lingqu", sleep_time=3, click_times=2).click() for _ in range(2)]
+    [
+        Getxy(tgt_pic="lingqu", sleep_time=3, click_times=2).click()
+        for _ in range(2)
+    ]
     log.logit().img()
     log.logit("完成收取体力").text()
 
@@ -229,8 +236,13 @@ def purchase():  # 采购办领免费体力
     Getxy(tgt_pic="caigouban01", sleep_time=5).click()
     scrn_ctrl().click(0.091, 0.41, sleep_time=2)
     while True:
-        [scrn_ctrl().swipe(0.965, 0.578, 0.27, 0.611, sleep_time=1) for _ in range(3)]
-        find_xy = Getxy(tgt_pic="caigouban02", sleep_time=2, retry_enabled=False)
+        [
+            scrn_ctrl().swipe(0.965, 0.578, 0.27, 0.611, sleep_time=1)
+            for _ in range(3)
+        ]
+        find_xy = Getxy(
+            tgt_pic="caigouban02", sleep_time=2, retry_enabled=False
+        )
         if find_xy.coords:
             log.logit("准备打开礼包").text()
             find_xy.click()
@@ -256,8 +268,13 @@ def raidriver(raid):  # 锈河
     scrn_ctrl().click(0.835, 0.682, sleep_time=2)
 
     Getxy(tgt_pic="fubensaodang", success_msg="尝试点击连续扫荡").click()
-    Getxy(tgt_pic="fubensaodangkaishi", success_msg="尝试点击开始", sleep_time=10).click()
-    if Getxy(tgt_pic="done", success_msg="尝试点击完成", retry_enabled=False).coords is None:
+    Getxy(
+        tgt_pic="fubensaodangkaishi", success_msg="尝试点击开始", sleep_time=10
+    ).click()
+    if (
+        Getxy(tgt_pic="done", success_msg="尝试点击完成", retry_enabled=False).coords
+        is None
+    ):
         Getxy(tgt_pic="cancell", success_msg="次数用光，取消扫荡").click()
     log.logit().img()
     topquit()
@@ -271,7 +288,10 @@ def raid11():  # 刷11章
     Getxy(tgt_pic="fuben1", sleep_time=4, success_msg="尝试打开副本界面").click()
     scrn_ctrl().click(0.98, 0.41, sleep_time=2)  # 点击切换到右侧
     Getxy(tgt_pic="fuben3-11", sleep_time=2, success_msg="尝试打开11章").click()
-    [scrn_ctrl().swipe(0.965, 0.578, 0.27, 0.611, sleep_time=1) for _ in range(2)]
+    [
+        scrn_ctrl().swipe(0.965, 0.578, 0.27, 0.611, sleep_time=1)
+        for _ in range(2)
+    ]
     scrn_ctrl().click(0.078, 0.541, sleep_time=2)  # 点击11-6
     Getxy(tgt_pic="fubensaodang", sleep_time=2, success_msg="尝试点击连续扫荡").click()
     [scrn_ctrl().click(0.712, 0.683) for _ in range(6)]  # 点击+号
@@ -320,7 +340,9 @@ def supervision():
     )  # 检查每周领取数据包任务
     if find_xy.coords:
         find_xy.click()
-        Getxy(tgt_pic="supervision08", sleep_time=1, retry_enabled=False).click()
+        Getxy(
+            tgt_pic="supervision08", sleep_time=1, retry_enabled=False
+        ).click()
     Getxy(tgt_pic="supervision01", sleep_time=1).click()  # 切换到检查任务
     # 重复三次，领取每日、每周、密令三种奖励
     supervision_get()
@@ -334,10 +356,14 @@ def supervision():
     if find_xy.coords:
         find_xy.click()
         # 检查是否出现了二选一
-        find_xy = Getxy(tgt_pic="supervision06", sleep_time=1, retry_enabled=False)
+        find_xy = Getxy(
+            tgt_pic="supervision06", sleep_time=1, retry_enabled=False
+        )
         if find_xy.coords:
             scrn_ctrl().click(0.63, 0.71, sleep_time=2)
-            Getxy(tgt_pic="supervision09", sleep_time=2, retry_enabled=False).click()
+            Getxy(
+                tgt_pic="supervision09", sleep_time=2, retry_enabled=False
+            ).click()
     scrn_ctrl().click(0.916, 0.935, sleep_time=2)  # 右下角退出物品领取界面
     log.logit().img()
     homequit()
@@ -370,7 +396,27 @@ def select_jobs():
 
     saved_selections = selected_options
     cfg.config["saved_selections"] = saved_selections
-    with open(path.join(cfg.curr_dir, "config.yaml"), "w", encoding="utf-8") as f:
+    with open(
+        path.join(cfg.curr_dir, "config.yaml"), "w", encoding="utf-8"
+    ) as f:
+        yaml = YAML()
+        yaml.dump(cfg.config, f)
+    return selected_options
+
+
+def select_sever():
+    options = [
+        "官服",
+        "B服",
+    ]
+    selected_options = pw.input.radio(
+        "服务器", options=options, value=cfg.sever_type
+    )
+    saved_sever_type = selected_options
+    cfg.config["sever_type"] = saved_sever_type
+    with open(
+        path.join(cfg.curr_dir, "config.yaml"), "w", encoding="utf-8"
+    ) as f:
         yaml = YAML()
         yaml.dump(cfg.config, f)
     return selected_options

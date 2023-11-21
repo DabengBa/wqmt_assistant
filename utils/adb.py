@@ -91,14 +91,16 @@ def connect():  # 连接设备，失败则报错
 
 
 def reconnect():
-    log.logit(content="连接模拟器失败，将会尝试自动连接").text()
+    log.logit(content="未连接模拟器，将会尝试自动连接").text()
     result = adb_run([cfg.adb_dir, "devices"], stdout=PIPE, stderr=PIPE)
     pat = re.compile(r"\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}:.\d{1,5}")
     devices = pat.findall(result.stdout.decode())
     if not devices:
         log.logit(content="未检测到模拟器或手机，请检查设备是否连接").warning()
         sys.exit()
-    result = adb_run([cfg.adb_dir, "connect", devices[0]], stdout=PIPE, stderr=PIPE)
+    result = adb_run(
+        [cfg.adb_dir, "connect", devices[0]], stdout=PIPE, stderr=PIPE
+    )
     if "already connected" in result.stdout.decode():
         log.logit("连接模拟器成功").text()
         cfg.device_name = devices[0]

@@ -40,7 +40,9 @@ class logit:
         if cfg.log_switch == "open":  # 只有在config.yaml中开启了日志输出才会执行
             # generated
             self.enabled = True
-            self.file_dir = path.join(cfg.curr_dir, f"log/{cfg.formatted_today}.txt")
+            self.file_dir = path.join(
+                cfg.curr_dir, f"log/{cfg.formatted_today}.txt"
+            )
             self.formatted_time = time.strftime(
                 "%Y-%m-%d %H:%M:%S", time.localtime(time.time())
             )
