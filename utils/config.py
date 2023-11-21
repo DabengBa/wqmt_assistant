@@ -6,7 +6,7 @@ from sys import argv
 # 动态参数
 ## 常用参数
 curr_dir = path.join(path.dirname(argv[0]), "")
-default_threshold = float(0.85)
+default_threshold = 0.85
 ## 环境参数
 ocr_dir = path.join(curr_dir, "tools", "PaddleOCR-json", "PaddleOCR-json.exe")
 adb_dir = path.join(curr_dir, "tools", "adb.exe")
@@ -16,17 +16,15 @@ formatted_today = time.strftime("%Y-%m-%d", time.localtime(time.time()))
 #! 以上参数在引用时需要使用类似config.ocr_dir的格式
 
 # 从Config取值，当前程序专用
-try:
-    with open(path.join(curr_dir, "config.yaml"), "r", encoding="utf-8") as f:
-        yaml = YAML()
-        config = yaml.load(f)
-except FileNotFoundError:
-    print("Error: config.yaml file not found.")
+with open(path.join(curr_dir, "config.yaml"), "r", encoding="utf-8") as f:
+    yaml = YAML()
+    config = yaml.load(f)
 
 log_switch = config.get("log_switch", "")
 sleep_time = config.get("sleep_time", "")
 remote_dir = config.get("remote_dir", "")
 device_name = config.get("device_name", "")
+sever_type = config.get("sever_type", "")
 width, height = (
     map(int, config.get("dimensions", "").split(","))
     if config.get("dimensions")

@@ -1,8 +1,8 @@
 sleep_time: 0.3 # 默认每步操作后的最小等待时间
-device_name: 127.0.0.1:16416
+device_name: 127.0.0.1:16416 # 设备IP， 可自动获取
 dimensions: 1280,720 # 屏幕分辨率，请注意使用英文逗号
 log_switch: open  # open 打开log功能， close 关闭
-
+sever_type: B服  # 服务器选择官服/B服
 remote_dir: /sdcard/screenshot.png # 部分模拟器存储截图的位置不同,mumu12就是这个不用改
 
 # 调试用，没有实际作用
