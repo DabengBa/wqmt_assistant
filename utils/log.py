@@ -40,9 +40,7 @@ class logit:
         if cfg.log_switch == "open":  # 只有在config.yaml中开启了日志输出才会执行
             # generated
             self.enabled = True
-            self.file_dir = path.join(
-                cfg.curr_dir, "log", cfg.formatted_today + ".txt"
-            )
+            self.file_dir = path.join(cfg.curr_dir, f"log/{cfg.formatted_today}.txt")
             self.formatted_time = time.strftime(
                 "%Y-%m-%d %H:%M:%S", time.localtime(time.time())
             )
@@ -53,22 +51,22 @@ class logit:
     def text(self):
         if self.enabled:
             with open(self.file_dir, "a", encoding="utf-8") as f:  # 使用追加模式打开文件
-                f.write(self.content + " " + self.formatted_time + "\n")
+                f.write(f"{self.content} {self.formatted_time}" + "\n")
             if self.shown:
                 pw.output.put_text(
-                    self.content + " " + self.formatted_time, scope="log_area"
+                    f"{self.content} {self.formatted_time}", scope="log_area"
                 )
 
     def warning(self):
         if self.enabled:
             with open(self.file_dir, "a", encoding="utf-8") as f:  # 使用追加模式打开文件
-                f.write(self.content + " " + self.formatted_time + "\n")
+                f.write(f"{self.content} {self.formatted_time}" + "\n")
         pw.output.popup("警告", self.content, size="normal")
 
     def toast(self):
         if self.enabled:
             with open(self.file_dir, "a", encoding="utf-8") as f:  # 使用追加模式打开文件
-                f.write(self.content + " " + self.formatted_time + "\n")
+                f.write(f"{self.content} {self.formatted_time}" + "\n")
             if self.shown:
                 pw.output.toast(
                     self.content, position="right", color="#2188ff", duration=0
