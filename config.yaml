@@ -7,9 +7,9 @@ remote_dir: /sdcard/screenshot.png # 部分模拟器存储截图的位置不同,
 device_name2: 127.0.0.1:16384
 
 # 程序配置, 勿动
-sever_type: B服 # 服务器选择 官服/B服
+sever_type: 官服 # 服务器选择 官服/B服
 fights: 狂厄结晶
-saved_last_action: 无动作
+last_action: 无动作
 saved_selections:
 - 启动
 - 签到
