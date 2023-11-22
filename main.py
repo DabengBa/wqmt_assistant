@@ -49,6 +49,6 @@ if __name__ == "__main__":
     if "肉鸽" in agree:
         wq.rouge()
     log.logit("完成所有任务").text()
-    if "退出无期迷途" in selected_last:
+    if "退出无期迷途" in last_action:
         wq.wqmtclose()
         log.logit("退出完成").text()
