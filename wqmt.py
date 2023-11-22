@@ -4,8 +4,6 @@ from utils.functions import *
 import utils.config as cfg
 import utils.log as log
 
-# TODO 增加预计等待时间
-
 
 def rouge():
     log.logit("开始：刷肉鸽").text()
@@ -24,36 +22,6 @@ def rouge():
         Getxy(tgt_pic="rouge05_termination").click()
         Getxy(tgt_pic="rouge06_quit").click()
         count += 1
-
-
-def select_sever():
-    options = [
-        "官服",
-        "B服",
-    ]
-    cfg.config["sever_type"] = pw.input.radio(
-        "服务器", options=options, value=cfg.sever_type
-    )
-    cfg.save_config
-    return cfg.config["sever_type"]
-
-
-def select_fights():
-    options = ["无", "狄斯币", "狂厄结晶", "副本-11-6"]
-    cfg.config["fights"] = pw.input.select(
-        "体力消耗", options=options, value=cfg.fights
-    )
-    cfg.save_config
-    return cfg.config["fights"]
-
-
-def select_last_action():
-    options = ["无动作", "退出模拟器(未生效)", "退出无期迷途"]
-    cfg.config["last_action"] = pw.input.select(
-        "完成后执行", options=options, value=cfg.last_action
-    )
-    cfg.save_config
-    return cfg.config["last_action"]
 
 
 def topquit():
@@ -123,6 +91,7 @@ def click_start():
         if find_xy.coords:
             find_xy.click()
             log.logit("点击开始游戏按钮").text()
+            find_xy.click()  # 尽量避免因界面卡顿失败而没有点击成功
             break
         else:
             log.logit("没有找到开始游戏按钮，尝试启动app及检查系统公告, 等待10秒").text()
@@ -463,3 +432,33 @@ def select_fights():
 def select_last_action():
     options = ["无动作", "退出模拟器(未生效)", "退出无期迷途"]
     return select_option("完成后执行", options, "last_action")
+
+
+# def select_sever():
+#     options = [
+#         "官服",
+#         "B服",
+#     ]
+#     cfg.config["sever_type"] = pw.input.radio(
+#         "服务器", options=options, value=cfg.sever_type
+#     )
+#     cfg.save_config
+#     return cfg.config["sever_type"]
+
+
+# def select_fights():
+#     options = ["无", "狄斯币", "狂厄结晶", "副本-11-6"]
+#     cfg.config["fights"] = pw.input.select(
+#         "体力消耗", options=options, value=cfg.fights
+#     )
+#     cfg.save_config
+#     return cfg.config["fights"]
+
+
+# def select_last_action():
+#     options = ["无动作", "退出模拟器(未生效)", "退出无期迷途"]
+#     cfg.config["last_action"] = pw.input.select(
+#         "完成后执行", options=options, value=cfg.last_action
+#     )
+#     cfg.save_config
+#     return cfg.config["last_action"]
