@@ -65,7 +65,9 @@ class Getxy:
 
         # Generated
         self.tgt_pic_dir = str(
-            path.join(cfg.curr_dir, "Target", cfg.prog_Name, f"{self.tgt_pic}.png")
+            path.join(
+                cfg.curr_dir, "Target", cfg.prog_Name, f"{self.tgt_pic}.png"
+            )
         )
         self.retry_times = 10 if self.retry_enabled else 1
 
@@ -104,7 +106,8 @@ class Getxy:
             # generate coordinates xy
             original_coords = [self.x, self.y, self.xx, self.yy]
             self.coords = [
-                round(rd.normalvariate(coord, 6.0), 2) for coord in original_coords
+                round(rd.normalvariate(coord, 6.0), 2)
+                for coord in original_coords
             ]
             # * debug print(f"{self.x} {self.y} {self.xx} {self.yy}")
             # check if the coordinates are valid
@@ -128,7 +131,9 @@ class Getxy:
             None
         """
         adb.cap_scrn()
-        log.logit(f"Screenshot completed, saved to {cfg.scrn_dir}", False).text()
+        log.logit(
+            f"Screenshot completed, saved to {cfg.scrn_dir}", False
+        ).text()
 
     def find_txt(self):
         for i in range(self.retry_times):
@@ -172,19 +177,24 @@ class Getxy:
             res = cv2.matchTemplate(img, template, cv2.TM_CCORR_NORMED)
             _, max_val, _, max_loc = cv2.minMaxLoc(res)
 
-            log.logit(f"{self.tgt_pic} 图像匹配结果 {max_val} {max_loc}", False).text()
+            log.logit(
+                f"{self.tgt_pic} 图像匹配结果 {max_val} {max_loc}", False
+            ).text()
 
             if max_val > self.threshold:
                 self.x, self.y = (
                     (max_loc[0] + template.shape[1] // 2) * (cfg.width / 1280),
-                    (max_loc[1] + template.shape[0] // 2) * (cfg.height / 720),  # 计算坐标
+                    (max_loc[1] + template.shape[0] // 2)
+                    * (cfg.height / 720),  # 计算坐标
                 )
                 log.logit(
                     f"{self.success_msg}, 根据图像匹配结果返回 {self.x} {self.y}", False
                 ).text()
                 self.coords = [self.x, self.y, 0.0, 0.0]
             else:
-                log.logit(f"{self.fail_msg}, 图像匹配失败 {self.tgt_pic}", False).text()
+                log.logit(
+                    f"{self.fail_msg}, 图像匹配失败 {self.tgt_pic}", False
+                ).text()
                 self.coords = None
 
             return self.coords
@@ -192,7 +202,9 @@ class Getxy:
     def click(self):
         if self.x == 0.0:
             return
-        log.logit(f"开始点击屏幕坐标 {self.x} {self.y}, {self.sleep_time}", False).text()
+        log.logit(
+            f"开始点击屏幕坐标 {self.x} {self.y}, {self.sleep_time}", False
+        ).text()
         [
             scrn_ctrl().click(self.x, self.y, self.sleep_time)
             for _ in range(self.click_times)
@@ -217,7 +229,9 @@ class scrn_ctrl:
 
         log.logit(f"收到时间 {self.sleep_time} 准备生成随机时间", False).text()
         for _ in range(45):
-            mtime = round(rd.normalvariate(self.sleep_time, self.sleep_time * 0.2), 2)
+            mtime = round(
+                rd.normalvariate(self.sleep_time, self.sleep_time * 0.2), 2
+            )
             if self.sleep_time < mtime < self.sleep_time * 1.3:
                 if rd.random() > 0.85:
                     mtime += 1
@@ -250,7 +264,9 @@ class scrn_ctrl:
         """
         self.get_coords(x=x, y=y)
         self.gen_ran_time(sleep_time=sleep_time)
-        log.logit(f"收到坐标 {self.x},{self.y}, 休眠{self.sleep_time}点击屏幕", False).text()
+        log.logit(
+            f"收到坐标 {self.x},{self.y}, 休眠{self.sleep_time}点击屏幕", False
+        ).text()
         adb.touch(self.x, self.y)
         sleep(self.sleep_time)
 

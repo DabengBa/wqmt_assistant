@@ -15,16 +15,30 @@ scrn_dir = path.join(curr_dir, "screenshot.png")  # 截图后用于识别
 formatted_today = time.strftime("%Y-%m-%d", time.localtime(time.time()))
 #! 以上参数在引用时需要使用类似config.ocr_dir的格式
 
-# 从Config取值，当前程序专用
-with open(path.join(curr_dir, "config.yaml"), "r", encoding="utf-8") as f:
-    yaml = YAML()
-    config = yaml.load(f)
 
-log_switch = config.get("log_switch", "")
-sleep_time = config.get("sleep_time", "")
-remote_dir = config.get("remote_dir", "")
-device_name = config.get("device_name", "")
-sever_type = config.get("sever_type", "")
-width, height = (1280, 720)
-saved_selections = config.get("saved_selections", "")
+# 从Config取值，当前程序专用
+def load_config():
+    with open(path.join(curr_dir, "config.yaml"), "r", encoding="utf-8") as f:
+        yaml = YAML()
+        config = yaml.load(f)
+    return config
+
+
+def save_config():
+    with open(path.join(curr_dir, "config.yaml"), "w", encoding="utf-8") as f:
+        yaml = YAML()
+        yaml.dump(config, f)
+
+
+config = load_config()
+
+log_switch = config["log_switch"]
+sleep_time = config["sleep_time"]
+remote_dir = config["remote_dir"]
+device_name = config["device_name"]
+sever_type = config["sever_type"]
+fights = config["saved_fights"]
+last_action = config["saved_last_action"]
+width, height = (1280, 720)  # TODO 是否已经写死分辨率?
+saved_selections = config["saved_selections"]
 prog_Name = "wqmt"

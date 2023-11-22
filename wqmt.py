@@ -26,6 +26,36 @@ def rouge():
         count += 1
 
 
+def select_sever():
+    options = [
+        "官服",
+        "B服",
+    ]
+    cfg.config["sever_type"] = pw.input.radio(
+        "服务器", options=options, value=cfg.sever_type
+    )
+    cfg.save_config
+    return cfg.config["sever_type"]
+
+
+def select_fights():
+    options = ["无", "狄斯币", "狂厄结晶", "副本-11-6"]
+    cfg.config["fights"] = pw.input.select(
+        "体力消耗", options=options, value=cfg.fights
+    )
+    cfg.save_config
+    return cfg.config["fights"]
+
+
+def select_last_action():
+    options = ["无动作", "退出模拟器(未生效)", "退出无期迷途"]
+    cfg.config["last_action"] = pw.input.select(
+        "完成后执行", options=options, value=cfg.last_action
+    )
+    cfg.save_config
+    return cfg.config["last_action"]
+
+
 def topquit():
     log.logit("尝试从上方退出潜在弹窗与结算窗口").text()
     [scrn_ctrl().click(0.4, 0.05, sleep_time=1) for _ in range(3)]
@@ -49,7 +79,8 @@ def homequit():
 
 def wqmtstart():  # 启动游戏
     app = "com.zy.wqmt.cn/com.papegames.gamelib_unity.BaseUnityImplActivity"
-    if cfg.sever_type == "B服":
+    config = cfg.load_config()  # 刷新cfg数值
+    if config["sever_type"] == "B服":
         adb.start(app.replace("cn", "bilibili"))
     else:
         adb.start(app)
@@ -58,7 +89,8 @@ def wqmtstart():  # 启动游戏
 
 def wqmtclose():  # 关闭游戏
     app = "com.zy.wqmt.cn/com.papegames.gamelib_unity.BaseUnityImplActivity"
-    if cfg.sever_type == "B服":
+    config = cfg.load_config()  # 刷新cfg数值
+    if config["sever_type"] == "B服":
         adb.close(app.replace("cn", "bilibili"))
     else:
         adb.close(app)
@@ -377,6 +409,21 @@ def supervision_get():
     scrn_ctrl().click(0.5, 0.8, sleep_time=1)  # 右下角退出物品领取界面
 
 
+def select_option(prompt, options, config_key):
+    try:
+        selected_option = pw.input.select(
+            prompt, options=options, value=cfg.config[config_key]
+        )
+    except Exception as e:
+        # Handle the exception here
+        print(f"An error occurred: {e}")
+        selected_option = cfg.config[config_key]
+    log.logit(f"Selected option: {selected_option}")
+    cfg.config[config_key] = selected_option
+    cfg.save_config()
+    return selected_option
+
+
 def select_jobs():
     options = [
         "启动",
@@ -394,13 +441,9 @@ def select_jobs():
     ]
     selected_options = pw.input.checkbox("Selection", options=options, value=cfg.saved_selections)  # type: ignore
 
-    saved_selections = selected_options
-    cfg.config["saved_selections"] = saved_selections
-    with open(
-        path.join(cfg.curr_dir, "config.yaml"), "w", encoding="utf-8"
-    ) as f:
-        yaml = YAML()
-        yaml.dump(cfg.config, f)
+    cfg.config["saved_selections"] = selected_options
+    cfg.save_config()
+    log.logit(f"Selected option: {selected_options}")
     return selected_options
 
 
@@ -409,14 +452,14 @@ def select_sever():
         "官服",
         "B服",
     ]
-    selected_options = pw.input.radio(
-        "服务器", options=options, value=cfg.sever_type
-    )
-    saved_sever_type = selected_options
-    cfg.config["sever_type"] = saved_sever_type
-    with open(
-        path.join(cfg.curr_dir, "config.yaml"), "w", encoding="utf-8"
-    ) as f:
-        yaml = YAML()
-        yaml.dump(cfg.config, f)
-    return selected_options
+    return select_option("服务器", options, "sever_type")
+
+
+def select_fights():
+    options = ["无", "狄斯币", "狂厄结晶", "副本-11-6"]
+    return select_option("体力消耗", options, "fights")
+
+
+def select_last_action():
+    options = ["无动作", "退出模拟器(未生效)", "退出无期迷途"]
+    return select_option("完成后执行", options, "last_action")

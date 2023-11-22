@@ -12,15 +12,10 @@ if __name__ == "__main__":
         pw.output.put_text("config.yaml中已经关闭日志输出，之后本窗口可以关闭")
 
     # todo 同时显示所有选项
-    # todo Cfg 需要重启才能生效
     sever = wq.select_sever()
     agree = wq.select_jobs()  # type: ignore
-
-    last_action = ["无动作", "退出模拟器(未生效)", "退出无期迷途"]
-    selected_last = pw.input.select("完成后执行", last_action)  # type: ignore
-
-    fight_options = ["无", "狄斯币", "狂厄结晶", "副本-11-6"]
-    fight = pw.input.select("体力消耗", fight_options, value=["狄斯币"])  # type: ignore
+    fight = wq.select_fights()
+    last_action = wq.select_last_action()
 
     if "启动" in agree:
         wq.starttohome()
