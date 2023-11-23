@@ -265,7 +265,7 @@ def raidriver(raid):  # 锈河
     log.logit("尝试切换到锈河").text()
     Getxy(tgt_pic="fuben_xiuhe", sleep_time=4, success_msg="尝试打开副本界面").click()
 
-    Getxy(tgt_pic=f"fuben_{raid}", sleep_time=2, success_msg="尝试打开记忆风暴").click()
+    Getxy(tgt_pic=f"fuben_{raid}", sleep_time=2, success_msg="尝试打开目标副本").click()
     scrn_ctrl().click(0.835, 0.682, sleep_time=2)
 
     Getxy(tgt_pic="fubensaodang", success_msg="尝试点击连续扫荡").click()
@@ -379,13 +379,24 @@ def supervision_get():
 
 
 def select_option(prompt, options, config_key):
+    """
+    Selects an option from a list of options and handles any exceptions that may occur during the selection process.
+
+    Args:
+        prompt (str): The prompt message to display to the user.
+        options (list): The list of options to display to the user.
+        config_key (str): The key to use in the configuration dictionary to store the selected option.
+
+    Returns:
+        str: The option selected by the user.
+    """
     try:
         selected_option = pw.input.select(
             prompt, options=options, value=cfg.config[config_key]
         )
     except Exception as e:
         # Handle the exception here
-        print(f"An error occurred: {e}")
+        log.logit(f"An error occurred: {e}", shown=True)
         selected_option = cfg.config[config_key]
     log.logit(f"Selected option: {selected_option}")
     cfg.config[config_key] = selected_option
@@ -405,6 +416,7 @@ def select_jobs():
         "好友",
         "副本-锈河记忆",
         "副本-深井",
+        "消耗体力刷副本",
         "监察密令",
         "肉鸽",
     ]
@@ -432,33 +444,3 @@ def select_fights():
 def select_last_action():
     options = ["无动作", "退出模拟器(未生效)", "退出无期迷途"]
     return select_option("完成后执行", options, "last_action")
-
-
-# def select_sever():
-#     options = [
-#         "官服",
-#         "B服",
-#     ]
-#     cfg.config["sever_type"] = pw.input.radio(
-#         "服务器", options=options, value=cfg.sever_type
-#     )
-#     cfg.save_config
-#     return cfg.config["sever_type"]
-
-
-# def select_fights():
-#     options = ["无", "狄斯币", "狂厄结晶", "副本-11-6"]
-#     cfg.config["fights"] = pw.input.select(
-#         "体力消耗", options=options, value=cfg.fights
-#     )
-#     cfg.save_config
-#     return cfg.config["fights"]
-
-
-# def select_last_action():
-#     options = ["无动作", "退出模拟器(未生效)", "退出无期迷途"]
-#     cfg.config["last_action"] = pw.input.select(
-#         "完成后执行", options=options, value=cfg.last_action
-#     )
-#     cfg.save_config
-#     return cfg.config["last_action"]
