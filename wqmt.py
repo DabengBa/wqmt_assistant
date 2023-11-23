@@ -378,6 +378,23 @@ def supervision_get():
     scrn_ctrl().click(0.5, 0.8, sleep_time=1)  # 右下角退出物品领取界面
 
 
+def raid_fight():
+    """
+    Consume stamina and obtain materials based on the selected raid.
+    The options are maintained in the `select_fights` function.
+    """
+    fight = cfg.config["fights"]
+    raid_mapping = {
+        "副本-11-6": raid11,
+        "狄斯币": lambda: raidriver("gold"),
+        "狂厄结晶": lambda: raidriver("crystal"),
+    }
+    if fight in raid_mapping:
+        raid_mapping[fight]()
+    else:
+        log.logit("没有配置目标副本, 请重新配置", shown=True)
+
+
 def select_option(prompt, options, config_key):
     """
     Selects an option from a list of options and handles any exceptions that may occur during the selection process.
@@ -416,7 +433,7 @@ def select_jobs():
         "好友",
         "副本-锈河记忆",
         "副本-深井",
-        "消耗体力刷副本",
+        "消耗体力刷材料",
         "监察密令",
         "肉鸽",
     ]
