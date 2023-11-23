@@ -112,7 +112,7 @@ def reconnect():
         stderr=PIPE,
     )
     pat = re.compile(r"\d{1,5}")
-    width, height = pat.findall(result.stdout.decode())
+    height, width = pat.findall(result.stdout.decode())
     cfg.width, cfg.height = int(width), int(height)
     log.logit(f"屏幕尺寸为{width}x{height}").text()
 
