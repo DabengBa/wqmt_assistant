@@ -143,7 +143,6 @@ def close(app):
             "shell",
             "am",
             "force-stop",
-            "-n",
             app,
         ],
         stdout=PIPE,

@@ -56,7 +56,7 @@ def wqmtstart():  # 启动游戏
 
 
 def wqmtclose():  # 关闭游戏
-    app = "com.zy.wqmt.cn/com.papegames.gamelib_unity.BaseUnityImplActivity"
+    app = "com.zy.wqmt.cn"
     config = cfg.load_config()  # 刷新cfg数值
     if config["sever_type"] == "B服":
         adb.close(app.replace("cn", "bilibili"))
