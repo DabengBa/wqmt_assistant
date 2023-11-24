@@ -1,8 +1,17 @@
 
 ![img](https://github.com/walklty/wqmt_assistant/blob/dev/Target/Snipaste_2023-09-09_05-17-32.png?raw=true)
 
-
 # 主要更新内容
+
+📅202311xx
+
+自动获取模拟器IP及分辨率,增加B服适配 @YUASDS
+
+支持最新的监察密令 @YUASDS
+
+增加狄斯币和狂厄结晶的体力副本 @YUASDS
+
+优化菜单选项
 
 📅202309xx 我跟ChatGPT说，你看人家代码都有个class什么的，你也这样给我改改。
 
@@ -18,10 +27,10 @@
 
 使用这个功能前建议在config.yaml中把 log_switch: close
 
-
 # 前言
 
 ## 废话
+
 ![author](https://img.shields.io/badge/author-ChatGPT3.5-blue)
 
 本项目由ChatGPT 3.5编写，Codeium复审代码，用于无期迷途每日收菜
@@ -97,4 +106,3 @@ start.bat
 - [ ] 副本后的升级检测
 
 - [x] 加入log功能 -- 会记录到log文件夹下，间隔7天删除
-
