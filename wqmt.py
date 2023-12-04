@@ -32,7 +32,9 @@ def topquit():
 def homequit():
     while True:
         log.logit("开始：尝试从home按钮退出").text()
-        find_xy = Getxy(tgt_pic="homequit", retry_enabled=False)
+        find_xy = Getxy(
+            tgt_pic="homequit", threshold=0.81, retry_enabled=False
+        )  # 20231204 监察密令置信区间0.817
         if find_xy.coords:
             find_xy.click()
             log.logit("完成：尝试从home按钮退出").text()
@@ -40,6 +42,7 @@ def homequit():
         else:
             log.logit("尝试从home按钮退出失败, 点击右下角退出潜在弹窗").text()
             scrn_ctrl().click(0.916, 0.935, sleep_time=2)
+
     find_xy = Getxy(tgt_pic="fuben1", retry_enabled=False)  # 检查一下是否真的回到了主界面
     if not find_xy.coords:
         Getxy(tgt_pic="homequit", retry_enabled=False).click()
