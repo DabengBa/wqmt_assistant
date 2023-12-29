@@ -224,7 +224,7 @@ def construction():  # 基建
     panelcheck()
     scrn_ctrl().click(0.844, 0.629, sleep_time=3)
     log.logit("开始收菜").text()
-    [scrn_ctrl().click(0.096, 0.373, sleep_time=2) for _ in range(3)]
+    [scrn_ctrl().click(0.087, 0.45, sleep_time=2) for _ in range(3)]
     log.logit("开始聊天").text()
     [scrn_ctrl().click(0.074, 0.249, sleep_time=2) for _ in range(2)]
     scrn_ctrl().click(0.908, 0.612)
