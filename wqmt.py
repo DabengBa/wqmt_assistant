@@ -30,18 +30,29 @@ def topquit():
 
 
 def homequit():
-    while True:
+    """
+    Attempts to exit the current screen by clicking on the "home" button.
+    If the button is found, it is clicked and the function completes.
+    If the button is not found, the function clicks on the bottom right corner of the screen to dismiss any potential pop-up windows and lowers the image matching threshold.
+    This process is repeated until the "home" button is found or the image matching threshold reaches a minimum value.
+    Inputs: None
+    Outputs: None
+    """
+    threshold = cfg.default_threshold
+    max_iterations = 10
+    for _ in range(max_iterations):
         log.logit("开始：尝试从home按钮退出").text()
         find_xy = Getxy(
-            tgt_pic="homequit", threshold=0.81, retry_enabled=False
-        )  # 20231204 监察密令置信区间0.817
+            tgt_pic="homequit", threshold=threshold, retry_enabled=False
+        )
         if find_xy.coords:
             find_xy.click()
             log.logit("完成：尝试从home按钮退出").text()
             break
         else:
-            log.logit("尝试从home按钮退出失败, 点击右下角退出潜在弹窗").text()
+            log.logit("尝试从home按钮退出失败, 点击右下角退出潜在弹窗, 并调低图片匹配要求").text()
             scrn_ctrl().click(0.916, 0.935, sleep_time=2)
+            threshold -= 0.1
 
     find_xy = Getxy(tgt_pic="fuben1", retry_enabled=False)  # 检查一下是否真的回到了主界面
     if not find_xy.coords:
@@ -224,7 +235,7 @@ def construction():  # 基建
     panelcheck()
     scrn_ctrl().click(0.844, 0.629, sleep_time=3)
     log.logit("开始收菜").text()
-    [scrn_ctrl().click(0.096, 0.373, sleep_time=2) for _ in range(3)]
+    [scrn_ctrl().click(0.087, 0.45, sleep_time=2) for _ in range(3)]
     log.logit("开始聊天").text()
     [scrn_ctrl().click(0.074, 0.249, sleep_time=2) for _ in range(2)]
     scrn_ctrl().click(0.908, 0.612)
