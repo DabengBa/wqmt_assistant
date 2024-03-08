@@ -8,7 +8,7 @@ device_name2: 127.0.0.1:16384
 
 # 程序配置, 勿动
 sever_type: 官服 # 服务器选择 官服/B服
-fights: 狂厄结晶
+fights: 副本13章随机
 last_action: 无动作
 saved_selections:
 - 启动

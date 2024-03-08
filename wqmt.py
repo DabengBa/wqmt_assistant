@@ -297,17 +297,28 @@ def raidriver(raid):  # 锈河
     log.logit("完成：锈河副本").text()
 
 
-def raid11():  # 刷11章
+def raid13():  # 随机刷13章
     log.logit("开始：raid任务").text()
     log.logit().img()
     Getxy(tgt_pic="fuben1", sleep_time=4, success_msg="尝试打开副本界面").click()
     scrn_ctrl().click(0.98, 0.41, sleep_time=2)  # 点击切换到右侧
-    Getxy(tgt_pic="fuben3-11", sleep_time=2, success_msg="尝试打开11章").click()
+    Getxy(tgt_pic="fuben3-13", sleep_time=2, success_msg="尝试打开13章").click()
     [
         scrn_ctrl().swipe(0.965, 0.578, 0.27, 0.611, sleep_time=1)
         for _ in range(2)
     ]
-    scrn_ctrl().click(0.078, 0.541, sleep_time=2)  # 点击11-6
+    random_number = rd.randint(1, 5)
+    if random_number == 1:
+        scrn_ctrl().click(0.33, 0.60, sleep_time=2)
+    if random_number == 2:
+        scrn_ctrl().click(0.52, 0.46, sleep_time=2)
+    if random_number == 3:
+        scrn_ctrl().click(0.52, 0.6, sleep_time=2)
+    if random_number == 4:
+        scrn_ctrl().click(0.52, 0.73, sleep_time=2)
+    if random_number == 5:
+        scrn_ctrl().click(0.72, 0.6, sleep_time=2)
+
     Getxy(tgt_pic="fubensaodang", sleep_time=2, success_msg="尝试点击连续扫荡").click()
     [scrn_ctrl().click(0.712, 0.683) for _ in range(6)]  # 点击+号
     Getxy(tgt_pic="fubensaodangkaishi", success_msg="尝试点击开始").click()
@@ -399,7 +410,7 @@ def raid_fight():
     """
     fight = cfg.config["fights"]
     raid_mapping = {
-        "副本-11-6": raid11,
+        "副本13章随机": raid13,
         "狄斯币": lambda: raidriver("gold"),
         "狂厄结晶": lambda: raidriver("crystal"),
     }
