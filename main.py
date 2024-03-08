@@ -47,7 +47,9 @@ def start_options():
 
 if __name__ == "__main__":
     adb.connect()
-    pw.output.put_text("建议按照12小时间隔，早晚各一次。晚上执行的时候请在17点之后，以便领取体力")
+    pw.output.put_text(
+        "建议按照12小时间隔，早晚各一次。晚上执行的时候请在17点之后，以便领取体力"
+    )
     # pw.input.
     if cfg.log_switch == "close":
         pw.output.put_text("config.yaml中已经关闭日志输出，之后本窗口可以关闭")
